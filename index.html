@@ -341,166 +341,117 @@ body {
   gap: 10px;
 }
 
-/* ══════════════════════════════════════
-   ITEM CARD  ― priority-based layout
-   視線の流れ：品名 → 不足数 → 補足
-══════════════════════════════════════ */
+/* ── ITEM CARD ── */
 .item-card {
   border-radius: var(--r-md);
   border: 1.5px solid var(--border);
-  background: var(--white);
+  overflow: hidden;
   box-shadow: var(--shadow-card);
   animation: slideIn .2s ease both;
-  overflow: hidden;
 }
-.item-card.ng   { border: 2px solid #b91c1c; }
-.item-card.warn { border: 2px solid #d97706; }
-
+.item-card.ng {
+  border: 2px solid #b91c1c;
+}
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-/* ① 品名バー ─ 最重要テキスト */
-.c-name-row {
-  padding: 14px 16px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-.c-name {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--ink);
-  line-height: 1.2;
-  flex: 1;
-  min-width: 0;
-  word-break: break-all;
-}
-.c-actions {
-  display: flex;
-  gap: 5px;
-  flex-shrink: 0;
-  padding-top: 2px;
-}
-
-/* ② 品番 ─ 品名の直下に小さく */
-.c-code-row {
-  padding: 2px 16px 0;
+.card-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
   gap: 8px;
 }
-.c-code {
+.card-part {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ink4);
-  letter-spacing: .06em;
-}
-/* ③ 出荷日バッジ */
-.c-date-badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink3);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1px 7px;
-  white-space: nowrap;
-}
-.c-date-badge.today-date  { background: #fef9c3; color: #92400e; border-color: #fde047; }
-.c-date-badge.past-date   { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-
-/* ④ 不足数ブロック ─ カード内で最も目立つ */
-.c-diff-block {
-  margin: 10px 16px 0;
-  border-radius: var(--r-sm);
-  padding: 10px 14px;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.item-card.ng   .c-diff-block { background: #fee2e2; }
-.item-card.warn .c-diff-block { background: #fffbeb; }
-.item-card.ok   .c-diff-block { background: #f0fdf4; }
-
-.c-diff-label {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: .04em;
+  color: var(--ink);
 }
-.item-card.ng   .c-diff-label { color: #991b1b; }
-.item-card.warn .c-diff-label { color: #92400e; }
-.item-card.ok   .c-diff-label { color: #166534; }
-
-.c-diff-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 28px;
-  font-weight: 900;
-  line-height: 1;
-}
-.item-card.ng   .c-diff-val { color: #b91c1c; }
-.item-card.warn .c-diff-val { color: #b45309; }
-.item-card.ok   .c-diff-val { color: #15803d; }
-
-/* NG は特に強調 */
-.item-card.ng .c-diff-val { font-size: 32px; }
-
-.c-status-icon {
-  font-size: 14px;
-  margin-left: auto;
-  align-self: center;
-}
-
-/* ⑤ 補足情報 ─ 小さめ・下部 */
-.c-sub-row {
-  padding: 8px 16px 14px;
+.card-actions-row {
   display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
+  gap: 5px;
 }
-.c-sub-item {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-.c-sub-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .05em;
-  color: var(--ink4);
-}
-.c-sub-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-}
-.c-sub-item.done .c-sub-label { color: #15803d; }
-.c-sub-item.done .c-sub-val   { color: #15803d; }
-.c-sub-item.wip  .c-sub-label { color: #b45309; }
-.c-sub-item.wip  .c-sub-val   { color: #b45309; }
-.c-sub-item.ship .c-sub-label { color: #6366f1; }
-.c-sub-item.ship .c-sub-val   { color: #4338ca; }
-
-/* Buttons */
 .btn-card-edit, .btn-card-del {
   border: none;
   border-radius: 5px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 7px 11px;
+  padding: 8px 12px;
   cursor: pointer;
   transition: all .12s;
-  min-height: 34px;
+  min-height: 36px;
 }
 .btn-card-edit { background: var(--surface); color: var(--ink3); border: 1px solid var(--border); }
 .btn-card-edit:hover { background: var(--border); color: var(--ink); }
 .btn-card-del  { background: var(--ng-light); color: var(--ng); }
 .btn-card-del:hover { background: var(--ng-mid); }
+
+.card-nums {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.num-box {
+  padding: 8px 10px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.num-box:last-child { border-right: none; }
+.num-box-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--ink4);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.num-box-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.num-box.ship .num-box-label { color: #6366f1; }
+.num-box.ship .num-box-val   { color: #4338ca; }
+.num-box.done .num-box-label { color: #15803d; }
+.num-box.done .num-box-val   { color: #15803d; }
+.num-box.wip  .num-box-label { color: #b45309; }
+.num-box.wip  .num-box-val   { color: #b45309; }
+
+.card-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+}
+.card.ok   .card-result { background: var(--ok-light); }
+.card.warn .card-result { background: var(--warn-light); }
+.card.ng   .card-result { background: var(--ng-light); }
+
+.result-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.card.ok   .result-status { color: var(--ok); }
+.card.warn .result-status { color: var(--warn); }
+.card.ng   .result-status { color: var(--ng); }
+
+.result-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+.card.ok   .result-num { color: var(--ok); }
+.card.warn .result-num { color: var(--warn); }
+.card.ng   .result-num { color: var(--ng); font-size: 19px; }
 
 /* ── FORM MODAL ── */
 .form-overlay {
@@ -758,6 +709,111 @@ body {
 }
 .today-fab:hover { background: #1e293b; }
 .today-fab:active { transform: scale(.95); }
+
+/* ── [NEW] HEADER STOCK DISPLAY ── */
+.header-stock {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+}
+.header-stock-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink4);
+  letter-spacing: .06em;
+}
+.header-stock-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ok);
+}
+.header-stock-val.warn { color: var(--warn); }
+.header-stock-val.ng   { color: var(--ng); }
+
+/* ── [NEW] INITIAL STOCK INPUT ── */
+.initial-stock-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.initial-stock-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.initial-stock-input {
+  width: 60px;
+  padding: 3px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  -webkit-appearance: none;
+  text-align: right;
+}
+.initial-stock-input:focus { border-color: var(--ink); }
+
+/* ── [NEW] STOCK BADGE on calendar day ── */
+.day-stock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.day-stock.ok   { color: var(--ok);   background: var(--ok-light); }
+.day-stock.warn { color: var(--warn); background: var(--warn-light); }
+.day-stock.ng   { color: var(--ng);   background: var(--ng-light); }
+
+/* ── [NEW] FIRST NEGATIVE DATE highlight ── */
+.cal-day.first-negative {
+  outline: 2px dashed var(--ng);
+  outline-offset: -2px;
+}
+.cal-day.first-negative::after {
+  content: '▼';
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 7px;
+  color: var(--ng);
+}
+
+/* ── [NEW] STOCK INFO ROW in detail sheet ── */
+.stock-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.stock-info-label {
+  font-weight: 700;
+  color: var(--ink3);
+}
+.stock-info-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+.stock-info-val.ok   { color: var(--ok); }
+.stock-info-val.warn { color: var(--warn); }
+.stock-info-val.ng   { color: var(--ng); }
 </style>
 </head>
 <body>
@@ -766,6 +822,11 @@ body {
 <header class="app-header">
   <div class="header-brand">
     <h1>月間出荷予定表</h1>
+  </div>
+  <!-- [NEW] 今日の在庫をヘッダーに表示 -->
+  <div id="headerStock" class="header-stock" style="display:none">
+    <span class="header-stock-label">現在庫</span>
+    <span id="headerStockVal" class="header-stock-val">—</span>
   </div>
   <div class="header-actions">
     <button class="btn-add" onclick="openForm()">
@@ -777,7 +838,7 @@ body {
 
 <!-- LEGEND -->
 <div class="legend-strip">
-  <div class="legend-item"><span class="legend-dot ok"></span>出荷OK</div>
+  <div class="legend-item"><span class="legend-dot ok"></span>OK</div>
   <div class="legend-item"><span class="legend-dot warn"></span>要注意</div>
   <div class="legend-item"><span class="legend-dot ng"></span>不足</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
@@ -820,12 +881,6 @@ body {
   <div class="cal-grid" id="calGrid"></div>
 </div>
 
-<!-- TODAY JUMP FAB -->
-<button class="today-fab" onclick="goToday()" title="今日へ">
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-  今日へ
-</button>
-
 <!-- DETAIL SHEET -->
 <div class="detail-overlay" id="detailOverlay">
   <div class="detail-backdrop" onclick="closeDetail()"></div>
@@ -839,6 +894,7 @@ body {
       <button class="chip-filter active" data-f="all" onclick="setSheetFilter('all',this)">すべて</button>
       <button class="chip-filter" data-f="ng"  onclick="setSheetFilter('ng',this)">🔴不足のみ</button>
     </div>
+    <!-- [NEW] その日の在庫サマリー（品番ごとに表示するためここは削除→カード内に移動） -->
     <div class="sheet-cards" id="sheetCards"></div>
   </div>
 </div>
@@ -852,12 +908,16 @@ body {
       <button class="form-close" onclick="closeForm()">✕</button>
     </div>
     <div class="form-field">
-      <label>品名</label>
-      <input type="text" id="fName" placeholder="例：エンジンカバー" autocomplete="off">
-    </div>
-    <div class="form-field">
       <label>品番</label>
-      <input type="text" id="fPartId" placeholder="例：A-1234" autocomplete="off" autocapitalize="characters">
+      <input type="text" id="fPartId" placeholder="例：A-1234" autocomplete="off" autocapitalize="characters"
+        oninput="syncInitStockHint(this.value)">
+    </div>
+    <!-- [NEW] 品番ごとの初期在庫 -->
+    <div class="form-field" id="fInitStockField">
+      <label>初期在庫
+        <span id="fInitStockHint" style="font-weight:400;color:var(--ink4);font-size:10px;margin-left:4px"></span>
+      </label>
+      <input type="number" id="fInitStock" placeholder="0" min="0" inputmode="numeric">
     </div>
     <div class="form-field">
       <label>出荷日</label>
@@ -888,12 +948,22 @@ body {
 /* ═══════════════════════════════════════
    STATE
 ═══════════════════════════════════════ */
-const KEY = 'sc_items_v1';
-let items = [];
-let editId = null;
-let viewYear, viewMonth;   // 0-indexed month
-let selectedDate = null;   // 'YYYY-MM-DD'
-let sheetFilter = 'all';
+const KEY            = 'sc_items_v1';
+const PART_STOCKS_KEY = 'sc_part_stocks_v2'; // 品番ごとの初期在庫
+
+let items      = [];
+let partStocks = {};  // { partId: initialStock }  品番ごとの初期在庫
+let editId     = null;
+let viewYear, viewMonth;
+let selectedDate = null;
+let sheetFilter  = 'all';
+
+// 安全在庫（固定値）
+const safetyStock = 20;
+
+// 品番ごとの在庫タイムラインキャッシュ
+// { partId: { "YYYY-MM-DD": stock } }
+let stockTimeline = {};
 
 const todayStr = (() => {
   const d = new Date();
@@ -908,64 +978,212 @@ function uid() { return Date.now().toString(36)+Math.random().toString(36).slice
 function load() {
   try { items = JSON.parse(localStorage.getItem(KEY)) || seed(); }
   catch { items = seed(); }
+  // 品番ごとの初期在庫を読み込む
+  try { partStocks = JSON.parse(localStorage.getItem(PART_STOCKS_KEY)) || {}; }
+  catch { partStocks = {}; }
 }
-function persist() { localStorage.setItem(KEY, JSON.stringify(items)); }
+function persist() {
+  localStorage.setItem(KEY, JSON.stringify(items));
+  localStorage.setItem(PART_STOCKS_KEY, JSON.stringify(partStocks));
+}
+
+// 品番の初期在庫を取得（未設定は 0）
+function getInitialStock(partId) {
+  return partStocks[partId] ?? 0;
+}
 
 function seed() {
   const [y,m,d] = todayStr.split('-').map(Number);
   const fmt = (y,m,d) => `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   const today = fmt(y,m,d);
   const plus = n => { const t=new Date(y,m-1,d+n); return fmt(t.getFullYear(),t.getMonth()+1,t.getDate()); };
+  // シードデータ用に初期在庫も設定
+  partStocks = {
+    'A-1001': 150,
+    'B-2045': 200,
+    'C-3320': 100,
+    'D-4788': 80,
+    'E-5512': 60,
+    'F-6001': 50,
+  };
   return [
-    {id:uid(), name:'エンジンカバー',   partId:'A-1001', date:today,   ship:100, done:80,  wip:30},
-    {id:uid(), name:'ブラケット',       partId:'B-2045', date:today,   ship:200, done:200, wip:0 },
-    {id:uid(), name:'ギアケース',       partId:'C-3320', date:plus(2), ship:150, done:60,  wip:50},
-    {id:uid(), name:'シリンダーヘッド', partId:'D-4788', date:plus(2), ship:80,  done:80,  wip:10},
-    {id:uid(), name:'オイルパン',       partId:'E-5512', date:plus(5), ship:120, done:40,  wip:20},
-    {id:uid(), name:'クランクシャフト', partId:'F-6001', date:plus(7), ship:50,  done:50,  wip:5 },
+    {id:uid(), partId:'A-1001', date:today,   ship:100, done:80,  wip:30},
+    {id:uid(), partId:'B-2045', date:today,   ship:200, done:200, wip:0 },
+    {id:uid(), partId:'C-3320', date:plus(2), ship:150, done:60,  wip:50},
+    {id:uid(), partId:'D-4788', date:plus(2), ship:80,  done:80,  wip:10},
+    {id:uid(), partId:'E-5512', date:plus(5), ship:120, done:40,  wip:20},
+    {id:uid(), partId:'F-6001', date:plus(7), ship:50,  done:50,  wip:5 },
   ];
 }
 
 /* ═══════════════════════════════════════
-   LOGIC
+   在庫タイムライン計算（品番ごと）
+   当日在庫 = 前日在庫 + 当日完成 - 当日出荷
+   ※ wip は在庫計算に含めない（表示用のみ）
 ═══════════════════════════════════════ */
-function judge(it) {
-  if (it.done >= it.ship) return 'ok';
-  if (it.done + it.wip >= it.ship) return 'warn';
-  return 'ng';
-}
-function diff(it) { return it.done + it.wip - it.ship; }
 
-// worst status for a group of items
-function worstStatus(arr) {
-  if (arr.some(i => judge(i)==='ng'))   return 'ng';
-  if (arr.some(i => judge(i)==='warn')) return 'warn';
+/**
+ * 全品番の在庫タイムラインを計算する
+ * @returns { partId: { "YYYY-MM-DD": stock } }
+ */
+function calculateStockTimeline(items) {
+  // 品番ごとにイベントをグループ化
+  const byPart = {};
+  for (const it of items) {
+    if (!byPart[it.partId]) byPart[it.partId] = [];
+    byPart[it.partId].push(it);
+  }
+
+  const timelines = {};
+
+  for (const [partId, partItems] of Object.entries(byPart)) {
+    const initStock = getInitialStock(partId);
+
+    // 日付ごとに ship・done を集計
+    const dayMap = {};
+    for (const it of partItems) {
+      if (!dayMap[it.date]) dayMap[it.date] = { ship: 0, done: 0 };
+      dayMap[it.date].ship += it.ship || 0;
+      dayMap[it.date].done += it.done || 0;
+    }
+
+    // 日付昇順でソートし在庫を連続計算
+    const sortedDates = Object.keys(dayMap).sort();
+    const timeline = {};
+    let stock = initStock;
+
+    for (const date of sortedDates) {
+      stock = stock + dayMap[date].done - dayMap[date].ship;
+      timeline[date] = stock;
+    }
+
+    timelines[partId] = timeline;
+  }
+
+  // デバッグ：品番ごとの在庫推移をコンソール出力
+  console.log('📦 在庫タイムライン（品番別）');
+  for (const [partId, tl] of Object.entries(timelines)) {
+    const initStock = getInitialStock(partId);
+    const lines = Object.entries(tl)
+      .map(([date, s]) => `  ${date}  在庫:${String(s).padStart(6)}  ${judgeStock(s)==='ng'?'🔴':judgeStock(s)==='warn'?'🟡':'🟢'}`)
+      .join('\n');
+    console.log(`  [${partId}] 初期在庫:${initStock}\n${lines}`);
+  }
+
+  return timelines;
+}
+
+function refreshTimeline() {
+  stockTimeline = calculateStockTimeline(items);
+}
+
+/**
+ * 指定品番・日付の在庫を取得
+ * その日のイベントがなければ直前のイベント日の在庫を返す
+ */
+function getStockForPartOnDate(partId, dateStr) {
+  const tl = stockTimeline[partId];
+  if (!tl) return getInitialStock(partId);
+  if (tl[dateStr] !== undefined) return tl[dateStr];
+  // 直前の在庫を返す
+  const sortedDates = Object.keys(tl).sort();
+  let last = getInitialStock(partId);
+  for (const d of sortedDates) {
+    if (d > dateStr) break;
+    last = tl[d];
+  }
+  return last;
+}
+
+/**
+ * 在庫ベースのステータス判定
+ *   < 0             → 'ng'   不足
+ *   <= safetyStock  → 'warn' 要注意
+ *   それ以外        → 'ok'
+ */
+function judgeStock(stock) {
+  if (stock < 0)            return 'ng';
+  if (stock <= safetyStock) return 'warn';
   return 'ok';
+}
+
+/**
+ * 指定日に出荷予定のある品番の中で最悪ステータスを返す
+ */
+function getDayWorstStatus(dateStr) {
+  const dayItems = items.filter(i => i.date === dateStr);
+  if (dayItems.length === 0) return null;
+  const partIds = [...new Set(dayItems.map(i => i.partId))];
+  let worst = 'ok';
+  for (const partId of partIds) {
+    const s = judgeStock(getStockForPartOnDate(partId, dateStr));
+    if (s === 'ng')   return 'ng';
+    if (s === 'warn') worst = 'warn';
+  }
+  return worst;
+}
+
+/**
+ * 今日時点でNGになっている品番の一覧
+ */
+function getNgPartsToday() {
+  const allPartIds = [...new Set(items.map(i => i.partId))];
+  return allPartIds.filter(partId => judgeStock(getStockForPartOnDate(partId, todayStr)) === 'ng');
+}
+
+/**
+ * 在庫がマイナスになった最初の日付（全品番横断）
+ */
+function firstNegativeDate() {
+  let first = null;
+  for (const tl of Object.values(stockTimeline)) {
+    for (const [date, stock] of Object.entries(tl)) {
+      if (stock < 0) {
+        if (!first || date < first) first = date;
+        break; // この品番の最初のNG日が見つかれば次の品番へ
+      }
+    }
+  }
+  return first;
 }
 
 /* ═══════════════════════════════════════
    CALENDAR RENDER
 ═══════════════════════════════════════ */
 function renderCalendar() {
+  refreshTimeline();
+
   const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   document.getElementById('monthLabel').textContent = `${viewYear}年 ${monthNames[viewMonth]}`;
 
-  // Build date→items map for this month
-  const firstDay = new Date(viewYear, viewMonth, 1);
-  const lastDay  = new Date(viewYear, viewMonth+1, 0);
-  const dow0 = firstDay.getDay(); // 0=Sun
+  const firstNeg = firstNegativeDate();
 
-  // Today banner: count today's ng items
+  // ヘッダー：NG品番数を表示
+  const headerStockEl  = document.getElementById('headerStock');
+  const headerStockVal = document.getElementById('headerStockVal');
+  const ngParts = getNgPartsToday();
+  headerStockEl.style.display = 'flex';
+  if (ngParts.length > 0) {
+    headerStockVal.textContent = `NG ${ngParts.length}品番`;
+    headerStockVal.className = 'header-stock-val ng';
+  } else {
+    headerStockVal.textContent = '在庫OK';
+    headerStockVal.className = 'header-stock-val ok';
+  }
+
+  // Today banner
   const todayItems = items.filter(i => i.date === todayStr);
   const banner = document.getElementById('todayBanner');
-  const ngToday = todayItems.filter(i => judge(i)==='ng').length;
   if (todayItems.length > 0) {
+    const todayStatus = getDayWorstStatus(todayStr);
+    const isNg = todayStatus === 'ng';
     banner.classList.add('show');
-    banner.classList.toggle('ng', ngToday > 0);
+    banner.classList.toggle('ng', isNg);
+    const todayShip = todayItems.reduce((s,i) => s+(i.ship||0), 0);
     document.getElementById('todayBannerText').textContent =
-      ngToday > 0
-        ? `🚨 今日の出荷 ${todayItems.length}件 ／ 不足 ${ngToday}件`
-        : `✅ 今日の出荷 ${todayItems.length}件 ／ すべて出荷OK`;
+      isNg
+        ? `🚨 今日の出荷 ${todayShip.toLocaleString()} ／ 不足品番あり（${ngParts.join('、')}）`
+        : `✅ 今日の出荷 ${todayShip.toLocaleString()} ／ すべて出荷OK`;
   } else {
     banner.classList.remove('show');
     banner.classList.remove('ng');
@@ -973,8 +1191,11 @@ function renderCalendar() {
 
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
+  const ngFilterOn = document.getElementById('calNgFilter').checked;
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const lastDay  = new Date(viewYear, viewMonth+1, 0);
+  const dow0 = firstDay.getDay();
 
-  // Empty cells before month start
   for (let i=0; i<dow0; i++) {
     const el = document.createElement('div');
     el.className = 'cal-day empty';
@@ -985,12 +1206,7 @@ function renderCalendar() {
     const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayItems = items.filter(i => i.date === dateStr);
     const dow = new Date(viewYear, viewMonth, d).getDay();
-
-    // Cal-side NG filter
-    const ngFilterOn = document.getElementById('calNgFilter').checked;
-    if (ngFilterOn && dayItems.length > 0 && worstStatus(dayItems) !== 'ng') {
-      // show greyed-out non-ng days
-    }
+    const dayStatus = getDayWorstStatus(dateStr); // 品番横断での最悪ステータス
 
     const el = document.createElement('div');
     let cls = 'cal-day';
@@ -998,32 +1214,29 @@ function renderCalendar() {
     if (dow===0) cls += ' sunday';
     if (dow===6) cls += ' saturday';
 
-    if (dayItems.length > 0) {
-      const ws = worstStatus(dayItems);
-      cls += ` has-${ws}`;
-      // Dim non-ng days when filter is on
-      if (ngFilterOn && ws !== 'ng') cls += ' ng-filter-dim';
+    if (dayItems.length > 0 && dayStatus) {
+      cls += ` has-${dayStatus}`;
+      if (ngFilterOn && dayStatus !== 'ng') cls += ' ng-filter-dim';
     }
+    if (dateStr === firstNeg) cls += ' first-negative';
+
     el.className = cls;
     el.setAttribute('data-date', dateStr);
 
-    // Day number
     const numEl = document.createElement('div');
     numEl.className = 'day-num';
     numEl.textContent = d;
     el.appendChild(numEl);
 
-    // Count badge (replaces dots)
-    if (dayItems.length > 0) {
-      const ws = worstStatus(dayItems);
+    // 出荷予定ある日: 件数バッジ（ステータス色付き）
+    if (dayItems.length > 0 && dayStatus) {
       const badge = document.createElement('div');
-      badge.className = `day-count ${ws}`;
+      badge.className = `day-count ${dayStatus}`;
       badge.textContent = dayItems.length;
       el.appendChild(badge);
     }
-    // ② ③ All days are tappable
-    el.onclick = () => openDetail(dateStr);
 
+    el.onclick = () => openDetail(dateStr);
     grid.appendChild(el);
   }
   renderUrgentStrip();
@@ -1033,18 +1246,22 @@ function renderCalendar() {
    URGENT STRIP
 ═══════════════════════════════════════ */
 function renderUrgentStrip() {
-  const ngItems = items
-    .filter(i => judge(i) === 'ng' && i.date >= todayStr)
-    .sort((a,b) => {
-      if (a.date !== b.date) return a.date.localeCompare(b.date);
-      return diff(a) - diff(b);
-    })
-    .slice(0, 3);
+  // 今日以降でNGになる（品番・日付）ペアを収集
+  const ngEvents = [];
+  for (const [partId, tl] of Object.entries(stockTimeline)) {
+    for (const [date, stock] of Object.entries(tl)) {
+      if (date >= todayStr && stock < 0) {
+        ngEvents.push({ partId, date, stock });
+      }
+    }
+  }
+  ngEvents.sort((a,b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.stock - b.stock);
+  const top = ngEvents.slice(0, 4);
 
-  const strip = document.getElementById('urgentStrip');
+  const strip   = document.getElementById('urgentStrip');
   const divider = document.getElementById('urgentDivider');
 
-  if (ngItems.length === 0) {
+  if (top.length === 0) {
     strip.classList.remove('show');
     divider.style.display = 'none';
     return;
@@ -1052,18 +1269,17 @@ function renderUrgentStrip() {
   strip.classList.add('show');
   divider.style.display = 'block';
 
-  document.getElementById('urgentCards').innerHTML = ngItems.map(it => {
-    const d = diff(it);
-    const [y,m,day] = it.date.split('-').map(Number);
+  document.getElementById('urgentCards').innerHTML = top.map(ev => {
+    const [y,m,day] = ev.date.split('-').map(Number);
     const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,day).getDay()];
-    const isToday = it.date === todayStr;
+    const isToday = ev.date === todayStr;
     const dateLabel = isToday ? '今日' : `${m}/${day}（${dow}）`;
-    return `<div class="urgent-card" onclick="openDetail('${it.date}')">
+    return `<div class="urgent-card" onclick="openDetail('${ev.date}')">
       <div class="urgent-card-left">
-        <span class="urgent-card-part">${escHtml(it.name || it.partId)}</span>
+        <span class="urgent-card-part">${escHtml(ev.partId)}</span>
         <span class="urgent-card-date">${dateLabel}</span>
       </div>
-      <span class="urgent-card-right">${d} 不足</span>
+      <span class="urgent-card-right">${ev.stock.toLocaleString()}</span>
     </div>`;
   }).join('');
 }
@@ -1077,13 +1293,11 @@ function openDetail(dateStr) {
   document.querySelectorAll('.chip-filter').forEach(b=>{
     b.classList.toggle('active', b.dataset.f==='all');
   });
-
   const [y,m,d] = dateStr.split('-').map(Number);
   const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,d).getDay()];
   const isToday = dateStr === todayStr;
   document.getElementById('sheetDate').innerHTML =
     `${m}月${d}日（${dow}）${isToday ? '<span style="font-size:11px;background:#fef9c3;color:#92400e;padding:2px 7px;border-radius:4px;font-weight:700;margin-left:6px">TODAY</span>' : ''}`;
-
   renderSheetCards();
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1097,17 +1311,26 @@ function setSheetFilter(f, btn) {
   document.querySelectorAll('.chip-filter').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
   renderSheetCards();
 }
+
 function renderSheetCards() {
   const allDayItems = items.filter(i => i.date === selectedDate);
-  const dayItems = allDayItems
-    .filter(i => sheetFilter==='all' || judge(i)===sheetFilter)
-    .sort((a,b) => diff(a) - diff(b));
+
+  // 品番ごとのステータスで絞り込む
+  const dayItems = allDayItems.filter(it => {
+    if (sheetFilter === 'all') return true;
+    const s = judgeStock(getStockForPartOnDate(it.partId, selectedDate));
+    return s === sheetFilter;
+  }).sort((a,b) => {
+    // NGを先頭に
+    const sa = judgeStock(getStockForPartOnDate(a.partId, selectedDate));
+    const sb = judgeStock(getStockForPartOnDate(b.partId, selectedDate));
+    const rank = { ng:0, warn:1, ok:2 };
+    return rank[sa] - rank[sb];
+  });
 
   const cont = document.getElementById('sheetCards');
 
-  // ③ Empty day: show message + add button
   if (allDayItems.length === 0) {
-    const [y,m,d] = selectedDate.split('-').map(Number);
     cont.innerHTML = `<div class="empty-sheet">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <p>この日の出荷予定はありません</p>
@@ -1126,65 +1349,42 @@ function renderSheetCards() {
     return;
   }
 
-  cont.innerHTML = dayItems.map((it,idx) => {
-    const s = judge(it);
-    const d = diff(it);
-    const statusIcon = { ok:'🟢', warn:'🟡', ng:'🔴' }[s];
-    const diffLabel  = s === 'ng' ? '不足' : s === 'warn' ? '要注意' : '余剰';
-    const diffVal    = s === 'ng'
-      ? Math.abs(d)
-      : s === 'warn'
-        ? (d === 0 ? '±0' : (d > 0 ? `+${d}` : d))
-        : (d === 0 ? '±0' : d);
+  const statusMap = { ok:['出荷OK','🟢'], warn:['要注意','🟡'], ng:['在庫不足','🔴'] };
 
-    // Date badge class
-    const dc = it.date < todayStr ? 'past-date' : it.date === todayStr ? 'today-date' : '';
-    const [dy,dm,dd] = it.date.split('-').map(Number);
-    const dateLabel = `${dm}/${dd} 出荷`;
+  cont.innerHTML = dayItems.map((it, idx) => {
+    // 品番ごとの在庫を取得
+    const partStock  = getStockForPartOnDate(it.partId, selectedDate);
+    const partStatus = judgeStock(partStock);
+    const [label, icon] = statusMap[partStatus];
+    const initSt = getInitialStock(it.partId);
 
-    const displayName = escHtml(it.name || it.partId);
-    const displayCode = it.name ? escHtml(it.partId) : '';
-
-    return `<div class="item-card ${s}" style="animation-delay:${idx*50}ms">
-
-      <!-- ① 品名 + アクションボタン -->
-      <div class="c-name-row">
-        <span class="c-name">${displayName}</span>
-        <div class="c-actions">
+    return `<div class="item-card card ${partStatus}" style="animation-delay:${idx*50}ms">
+      <div class="card-top">
+        <span class="card-part">${escHtml(it.partId)}</span>
+        <div class="card-actions-row">
           <button class="btn-card-edit" onclick="openEdit('${it.id}')">✏ 編集</button>
           <button class="btn-card-del"  onclick="deleteItem('${it.id}')">削除</button>
         </div>
       </div>
-
-      <!-- ② 品番 + ③ 出荷日 -->
-      <div class="c-code-row">
-        ${displayCode ? `<span class="c-code">${displayCode}</span>` : ''}
-        <span class="c-date-badge ${dc}">${dateLabel}</span>
-      </div>
-
-      <!-- ④ 不足数ブロック（最重要） -->
-      <div class="c-diff-block">
-        <span class="c-diff-label">${diffLabel}</span>
-        <span class="c-diff-val">${diffVal}</span>
-        <span class="c-status-icon">${statusIcon}</span>
-      </div>
-
-      <!-- ⑤ 補足情報（小さめ） -->
-      <div class="c-sub-row">
-        <div class="c-sub-item ship">
-          <span class="c-sub-label">出荷数</span>
-          <span class="c-sub-val">${it.ship.toLocaleString()}</span>
+      <div class="card-nums">
+        <div class="num-box ship">
+          <div class="num-box-label">出荷数</div>
+          <div class="num-box-val">${(it.ship||0).toLocaleString()}</div>
         </div>
-        <div class="c-sub-item done">
-          <span class="c-sub-label">完成品</span>
-          <span class="c-sub-val">${it.done.toLocaleString()}</span>
+        <div class="num-box done">
+          <div class="num-box-label">完成品</div>
+          <div class="num-box-val">${(it.done||0).toLocaleString()}</div>
         </div>
-        <div class="c-sub-item wip">
-          <span class="c-sub-label">仕掛品</span>
-          <span class="c-sub-val">${it.wip.toLocaleString()}</span>
+        <div class="num-box wip">
+          <div class="num-box-label">仕掛品</div>
+          <div class="num-box-val">${(it.wip||0).toLocaleString()}</div>
         </div>
       </div>
-
+      <div class="card-result">
+        <span class="result-status">${icon} ${label}</span>
+        <!-- 品番ごとの残在庫を表示 -->
+        <span class="result-num" title="初期在庫: ${initSt}">残 ${partStock.toLocaleString()}</span>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1192,30 +1392,61 @@ function renderSheetCards() {
 /* ═══════════════════════════════════════
    FORM
 ═══════════════════════════════════════ */
+// 品番入力時に初期在庫のヒントを更新
+function syncInitStockHint(partId) {
+  const hint      = document.getElementById('fInitStockHint');
+  const initInput = document.getElementById('fInitStock');
+  const doneInput = document.getElementById('fDone');
+  const wipInput  = document.getElementById('fWip');
+  const trimmed   = partId.trim();
+
+  // 初期在庫ヒント
+  if (trimmed && partStocks[trimmed] !== undefined) {
+    hint.textContent = `（現在: ${partStocks[trimmed]}）`;
+    if (initInput !== document.activeElement) initInput.value = partStocks[trimmed];
+  } else {
+    hint.textContent = trimmed ? '（未設定）' : '';
+    if (initInput !== document.activeElement) initInput.value = '';
+  }
+
+  // 同じ品番の直近案件から 完成品・仕掛品 を自動反映
+  if (!trimmed) return;
+  const samePartItems = items
+    .filter(i => i.partId === trimmed)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  if (samePartItems.length > 0) {
+    const latest = samePartItems[0];
+    if (doneInput !== document.activeElement) doneInput.value = latest.done ?? 0;
+    if (wipInput  !== document.activeElement) wipInput.value  = latest.wip  ?? 0;
+  }
+}
+
 function openForm(prefillDate) {
   editId = null;
   document.getElementById('formTitle').textContent = '案件を追加';
-  document.getElementById('fName').value  = '';
-  document.getElementById('fPartId').value = '';
-  document.getElementById('fDate').value = prefillDate || todayStr;
-  document.getElementById('fShip').value = '';
-  document.getElementById('fDone').value = '0';
-  document.getElementById('fWip').value  = '0';
+  document.getElementById('fPartId').value  = '';
+  document.getElementById('fDate').value    = prefillDate || todayStr;
+  document.getElementById('fShip').value    = '';
+  document.getElementById('fDone').value    = '0';
+  document.getElementById('fWip').value     = '0';
+  document.getElementById('fInitStock').value = '';
+  document.getElementById('fInitStockHint').textContent = '';
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('fName').focus(), 300);
+  setTimeout(() => document.getElementById('fPartId').focus(), 300);
 }
 function openEdit(id) {
   const it = items.find(i => i.id===id);
   if (!it) return;
   editId = id;
   document.getElementById('formTitle').textContent = '案件を編集';
-  document.getElementById('fName').value   = it.name || '';
-  document.getElementById('fPartId').value = it.partId;
-  document.getElementById('fDate').value   = it.date;
-  document.getElementById('fShip').value   = it.ship;
-  document.getElementById('fDone').value   = it.done;
-  document.getElementById('fWip').value    = it.wip;
+  document.getElementById('fPartId').value  = it.partId;
+  document.getElementById('fDate').value    = it.date;
+  document.getElementById('fShip').value    = it.ship;
+  document.getElementById('fDone').value    = it.done;
+  document.getElementById('fWip').value     = it.wip;
+  document.getElementById('fInitStock').value = getInitialStock(it.partId);
+  document.getElementById('fInitStockHint').textContent = '';
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1224,32 +1455,36 @@ function closeForm() {
   document.body.style.overflow = '';
 }
 function saveItem() {
-  const name   = document.getElementById('fName').value.trim();
-  const partId = document.getElementById('fPartId').value.trim();
-  const date   = document.getElementById('fDate').value;
-  const ship   = parseInt(document.getElementById('fShip').value) || 0;
-  const done   = parseInt(document.getElementById('fDone').value) || 0;
-  const wip    = parseInt(document.getElementById('fWip').value)  || 0;
+  const partId   = document.getElementById('fPartId').value.trim();
+  const date     = document.getElementById('fDate').value;
+  const ship     = parseInt(document.getElementById('fShip').value)     || 0;
+  const done     = parseInt(document.getElementById('fDone').value)     || 0;
+  const wip      = parseInt(document.getElementById('fWip').value)      || 0;
+  const initStRaw = document.getElementById('fInitStock').value;
   if (!partId || !date) {
     alert('品番と出荷日は必須です');
     return;
   }
+  // 品番ごとの初期在庫を更新（入力があれば）
+  if (initStRaw !== '') {
+    const initSt = parseInt(initStRaw);
+    if (!isNaN(initSt) && initSt >= 0) partStocks[partId] = initSt;
+  } else if (partStocks[partId] === undefined) {
+    partStocks[partId] = 0; // 未設定品番は 0 で登録
+  }
+
   if (editId) {
     const idx = items.findIndex(i => i.id===editId);
-    if (idx>=0) items[idx] = { id:editId, name, partId, date, ship, done, wip };
+    if (idx>=0) items[idx] = { id:editId, partId, date, ship, done, wip };
   } else {
-    items.push({ id:uid(), name, partId, date, ship, done, wip });
+    items.push({ id:uid(), partId, date, ship, done, wip });
   }
   persist();
   closeForm();
-
-  // Update view to show the saved item's month
   const [y,m] = date.split('-').map(Number);
   viewYear  = y;
   viewMonth = m-1;
   renderCalendar();
-
-  // ⑥ Always open detail for the saved date
   openDetail(date);
 }
 function deleteItem(id) {
@@ -1296,5 +1531,6 @@ viewYear  = now.getFullYear();
 viewMonth = now.getMonth();
 renderCalendar();
 </script>
+
 </body>
 </html>
