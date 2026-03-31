@@ -1517,11 +1517,21 @@ function calcStock(partId) {
  * ※ 在庫は保存しない。完成品・仕掛品は今回入力分のみ。
  */
 function calcPreviewStock(partId) {
-  const currentStock = calcStock(partId);
+  let baseStock = calcStock(partId);
+
+  // 編集中のアイテムは既に stockTimeline に含まれているので除外する
+  // （そうしないとフォームの値と二重計上になる）
+  if (editId) {
+    const original = items.find(i => i.id === editId);
+    if (original && original.partId === partId) {
+      baseStock = baseStock - (original.done || 0) + (original.ship || 0);
+    }
+  }
+
   const ship = Number(document.getElementById('fShip').value) || 0;
   const done = Number(document.getElementById('fDone').value) || 0;
   const wip  = Number(document.getElementById('fWip').value)  || 0;
-  return currentStock + done + wip - ship;
+  return baseStock + done - ship; // wip は在庫計算に含めない（カード表示と統一）
 }
 
 /**
@@ -1862,7 +1872,8 @@ function openEdit(id) {
   document.getElementById('fDoneHint').textContent = '';
   document.getElementById('fWipHint').textContent  = '';
   updateDatalist();
-  updatePreview(); // 編集時も現在値でプレビュー表示
+  document.getElementById('previewCard').style.display = 'block';
+  updatePreview(); // フォーム値がすべてセットされた後に実行
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
