@@ -814,6 +814,108 @@ body {
 .stock-info-val.ok   { color: var(--ok); }
 .stock-info-val.warn { color: var(--warn); }
 .stock-info-val.ng   { color: var(--ng); }
+
+/* ── 前回比率ボタン ── */
+.btn-ratio {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink3);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.btn-ratio:hover {
+  border-color: var(--ink);
+  background: var(--border);
+  color: var(--ink);
+}
+.btn-ratio:active { transform: scale(.98); }
+
+/* ── PREVIEW CARD ── */
+.preview-card {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  margin-top: 12px;
+  background: var(--white);
+  transition: border-color .2s;
+}
+.preview-card.ok   { border-color: var(--ok-mid); }
+.preview-card.warn { border-color: var(--warn-mid); }
+.preview-card.ng   { border-color: var(--ng-mid); }
+
+.preview-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--ink4);
+  text-transform: uppercase;
+  padding: 7px 12px 4px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.preview-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.p-box {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-right: 1px solid var(--border);
+}
+.p-box:last-child { border-right: none; }
+.p-box-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--ink4);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.p-box-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.preview-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  transition: background .2s;
+}
+.preview-result.ok   { background: var(--ok-light); }
+.preview-result.warn { background: var(--warn-light); }
+.preview-result.ng   { background: var(--ng-light); }
+
+#previewStatus.ok   { color: var(--ok); }
+#previewStatus.warn { color: var(--warn); }
+#previewStatus.ng   { color: var(--ng); }
+
+#previewStock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+}
+#previewStock.ok   { color: var(--ok); }
+#previewStock.warn { color: var(--warn); }
+#previewStock.ng   { color: var(--ng); font-size: 20px; }
 </style>
 </head>
 <body>
@@ -934,6 +1036,30 @@ body {
         <input type="number" id="fWip"  placeholder="0" min="0" inputmode="numeric">
       </div>
     </div>
+
+    <!-- 在庫プレビューカード -->
+    <div class="preview-card" id="previewCard" style="display:none">
+      <div class="preview-label">📦 在庫プレビュー（保存前）</div>
+      <div class="preview-row">
+        <div class="p-box">
+          <div class="p-box-label">出荷数</div>
+          <div class="p-box-val" id="pShip">0</div>
+        </div>
+        <div class="p-box">
+          <div class="p-box-label">完成品</div>
+          <div class="p-box-val" id="pDone">0</div>
+        </div>
+        <div class="p-box">
+          <div class="p-box-label">仕掛品</div>
+          <div class="p-box-val" id="pWip">0</div>
+        </div>
+      </div>
+      <div class="preview-result" id="previewResult">
+        <span id="previewStatus">出荷OK</span>
+        <span>残 <span id="previewStock">0</span></span>
+      </div>
+    </div>
+
     <div class="form-actions">
       <button class="btn-cancel-form" onclick="closeForm()">キャンセル</button>
       <button class="btn-save-form"   onclick="saveItem()">保存する</button>
@@ -1373,6 +1499,241 @@ function renderSheetCards() {
 /* ═══════════════════════════════════════
    FORM
 ═══════════════════════════════════════ */
+
+/* ═══════════════════════════════════════
+   在庫プレビュー（保存前リアルタイム計算）
+   在庫は保存しない。表示専用。
+═══════════════════════════════════════ */
+
+/**
+ * 指定品番の「現在の保存済み在庫」を取得
+ */
+function calcStock(partId) {
+  return getStockForPartOnDate(partId, todayStr);
+}
+
+/**
+ * フォーム入力値を使って「保存後の在庫」をプレビュー計算
+ * ※ 在庫は保存しない。完成品・仕掛品は今回入力分のみ。
+ */
+function calcPreviewStock(partId) {
+  const currentStock = calcStock(partId);
+  const ship = Number(document.getElementById('fShip').value) || 0;
+  const done = Number(document.getElementById('fDone').value) || 0;
+  const wip  = Number(document.getElementById('fWip').value)  || 0;
+  return currentStock + done + wip - ship;
+}
+
+/**
+ * プレビューカードをリアルタイム更新
+ */
+function updatePreview() {
+  const partId   = document.getElementById('fPartId').value.trim();
+  const card     = document.getElementById('previewCard');
+  const resultEl = document.getElementById('previewResult');
+  const statusEl = document.getElementById('previewStatus');
+  const stockEl  = document.getElementById('previewStock');
+
+  if (!partId) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+
+  const ship = Number(document.getElementById('fShip').value) || 0;
+  const done = Number(document.getElementById('fDone').value) || 0;
+  const wip  = Number(document.getElementById('fWip').value)  || 0;
+  const previewVal = calcPreviewStock(partId);
+
+  // 数値表示更新
+  document.getElementById('pShip').textContent = ship.toLocaleString();
+  document.getElementById('pDone').textContent = done.toLocaleString();
+  document.getElementById('pWip').textContent  = wip.toLocaleString();
+  stockEl.textContent = previewVal.toLocaleString();
+
+  // ステータス判定（既存の judgeStock ロジックに準拠）
+  const status = judgeStock(previewVal);
+  const labelMap = { ok: '✅ 出荷OK', warn: '⚠️ 要注意', ng: '🔴 不足' };
+
+  // クラスをリセットして付け直す
+  ['ok','warn','ng'].forEach(c => {
+    card.classList.remove(c);
+    resultEl.classList.remove(c);
+  });
+  card.classList.add(status);
+  resultEl.classList.add(status);
+  statusEl.className = status;
+  statusEl.textContent = labelMap[status];
+  stockEl.className = status;
+}
+
+/* ═══════════════════════════════════════
+   比率配分（前回データを元に完成品・仕掛品を自動入力）
+═══════════════════════════════════════ */
+
+/** 指定品番の直近案件を返す */
+function getLastItem(partId) {
+  return items
+    .filter(i => i.partId === partId)
+    .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
+}
+
+/** 直近案件の完成品・仕掛品比率を返す（データなし or 合計0 → null） */
+function getLastBreakdown(partId) {
+  const last = getLastItem(partId);
+  if (!last) return null;
+  const total = (last.done || 0) + (last.wip || 0);
+  if (total === 0) return null;
+  return {
+    doneRatio: last.done / total,
+    wipRatio:  last.wip  / total,
+  };
+}
+
+/**
+ * 前回比率で完成品・仕掛品を自動配分し入力欄に反映
+ * ※ 在庫は変更しない。入力補助のみ。
+ */
+function applyRatioToRemaining(partId) {
+  if (!partId) return;
+  const ratio = getLastBreakdown(partId);
+  if (!ratio) {
+    alert('前回データがないため自動配分できません');
+    return;
+  }
+
+  const currentStock = calcStock(partId);
+  const ship = Number(document.getElementById('fShip').value) || 0;
+
+  // 今回不足する数（マイナスなら配分不要）
+  const shortage = ship - currentStock;
+  if (shortage <= 0) {
+    alert('現在の在庫で出荷可能なため配分は不要です');
+    return;
+  }
+
+  const done = Math.round(shortage * ratio.doneRatio);
+  const wip  = shortage - done;
+
+  document.getElementById('fDone').value = done;
+  document.getElementById('fWip').value  = wip;
+
+  updatePreview();
+}
+
+/**
+ * 出荷数入力時に完成品・仕掛品を自動反映（初回のみ・安全版）
+ * ルール：
+ *   - fDone または fWip にすでに値があれば何もしない
+ *   - 在庫が足りている場合は自動入力しない（不足分のみ補う）
+ *   - 在庫・保存ロジックには一切触れない
+ */
+function autoFillFromShip(partId) {
+  if (!partId) return;
+
+  // すでにユーザーが入力済みなら上書きしない
+  const doneEl = document.getElementById('fDone');
+  const wipEl  = document.getElementById('fWip');
+  if (doneEl.value || wipEl.value) return;
+
+  const ratio = getLastBreakdown(partId);
+  if (!ratio) return;
+
+  const currentStock = calcStock(partId);
+  const ship = Number(document.getElementById('fShip').value) || 0;
+
+  // 不足分のみ補う（在庫が足りる場合は入力しない）
+  const need = ship - currentStock;
+  if (need <= 0) return;
+
+  const done = Math.round(need * ratio.doneRatio);
+  const wip  = need - done;
+
+  doneEl.value = done;
+  wipEl.value  = wip;
+
+  updatePreview();
+}
+
+/* ═══════════════════════════════════════
+   残内訳自動反映（正しい在庫設計版）
+   ★ 表示専用。保存時は userEdited フラグで判断。
+═══════════════════════════════════════ */
+
+/** 直近案件の完成品・仕掛品比率を返す（getLastBreakdown の別名・仕様統一版） */
+function getLastRatio(partId) {
+  const last = getLastItem(partId);
+  if (!last) return null;
+  const total = (last.done || 0) + (last.wip || 0);
+  if (total === 0) return null;
+  return {
+    doneRatio: last.done / total,
+    wipRatio:  last.wip  / total,
+  };
+}
+
+/**
+ * 出荷後の残在庫を前回比率で分解して返す
+ * remaining = currentStock - ship
+ * ★ remaining が負の場合は null（在庫不足なので表示しない）
+ */
+/**
+ * 出荷後の残内訳を計算（完成品から優先的に消費）
+ *
+ * 例）前回: 完成品500, 仕掛品5  出荷: 100
+ *   → 完成品から100消費 → 残: 完成品400, 仕掛品5
+ *
+ * 例）前回: 完成品50, 仕掛品100  出荷: 80
+ *   → 完成品50を全消費 → 残り30を仕掛品から消費 → 残: 完成品0, 仕掛品70
+ */
+function calcRemainingBreakdown(partId) {
+  const last = getLastItem(partId);
+  if (!last) return null;
+
+  const prevDone = last.done || 0;
+  const prevWip  = last.wip  || 0;
+  const ship     = Number(document.getElementById('fShip').value) || 0;
+
+  // ① 完成品から先に消費
+  const doneConsumed = Math.min(ship, prevDone);
+  const remainDone   = prevDone - doneConsumed;
+
+  // ② 完成品で足りない分を仕掛品から消費
+  const shipLeft   = ship - doneConsumed;
+  const wipConsumed = Math.min(shipLeft, prevWip);
+  const remainWip   = prevWip - wipConsumed;
+
+  return { done: remainDone, wip: remainWip };
+}
+
+/**
+ * 残内訳を入力欄に自動反映
+ * ルール：
+ *   - ユーザーが手動入力済み（dataset.userEdited === 'true'）なら上書きしない
+ *   - 反映した値は「表示補助」のみ。保存時は userEdited フラグで判断。
+ */
+function autoFillRemaining(partId) {
+  if (!partId) return;
+
+  const doneEl = document.getElementById('fDone');
+  const wipEl  = document.getElementById('fWip');
+
+  // ユーザーが手動入力していたら上書き禁止
+  if (doneEl.dataset.userEdited === 'true' || wipEl.dataset.userEdited === 'true') return;
+
+  const data = calcRemainingBreakdown(partId);
+  if (!data) {
+    // 前回データなし → 入力欄をクリア
+    doneEl.value = '';
+    wipEl.value  = '';
+    return;
+  }
+
+  doneEl.value = data.done;
+  wipEl.value  = data.wip;
+  // ※ この値は dataset.userEdited を立てない → 保存時に 0 として扱われる
+}
+
 /* ═══════════════════════════════════════
    FORM HELPERS
 ═══════════════════════════════════════ */
@@ -1459,6 +1820,7 @@ function syncPartInfo(val, mode) {
     doneHint.textContent = '';
     wipHint.textContent  = '';
   }
+  updatePreview(); // プレビューをリアルタイム更新
 }
 
 function openForm(prefillDate) {
@@ -1470,9 +1832,13 @@ function openForm(prefillDate) {
   document.getElementById('fShip').value     = '';
   document.getElementById('fDone').value     = '0';
   document.getElementById('fWip').value      = '0';
+  // userEdited フラグをリセット（前回フォームの状態を引き継がない）
+  document.getElementById('fDone').dataset.userEdited = 'false';
+  document.getElementById('fWip').dataset.userEdited  = 'false';
   document.getElementById('fStockHint').style.display = 'none';
   document.getElementById('fDoneHint').textContent = '';
   document.getElementById('fWipHint').textContent  = '';
+  document.getElementById('previewCard').style.display = 'none'; // プレビューをリセット
   updateDatalist();
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1489,10 +1855,14 @@ function openEdit(id) {
   document.getElementById('fShip').value     = it.ship;
   document.getElementById('fDone').value     = it.done;
   document.getElementById('fWip').value      = it.wip;
+  // 編集時は保存済みの値を尊重する → userEdited フラグを立てておく
+  document.getElementById('fDone').dataset.userEdited = 'true';
+  document.getElementById('fWip').dataset.userEdited  = 'true';
   document.getElementById('fStockHint').style.display = 'none';
   document.getElementById('fDoneHint').textContent = '';
   document.getElementById('fWipHint').textContent  = '';
   updateDatalist();
+  updatePreview(); // 編集時も現在値でプレビュー表示
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1505,8 +1875,11 @@ function saveItem() {
   const partName = document.getElementById('fPartName').value.trim();
   const date     = document.getElementById('fDate').value;
   const ship     = parseInt(document.getElementById('fShip').value)     || 0;
+
+  // 入力欄の値をそのまま保存（自動入力・手動入力どちらも同様に扱う）
   const done     = parseInt(document.getElementById('fDone').value)     || 0;
   const wip      = parseInt(document.getElementById('fWip').value)      || 0;
+
   if (!partId || !date) {
     alert('品番と出荷日は必須です');
     return;
@@ -1576,6 +1949,23 @@ const now = new Date();
 viewYear  = now.getFullYear();
 viewMonth = now.getMonth();
 renderCalendar();
+
+// fDone・fWip：手動入力を検知して userEdited フラグを立てる
+document.getElementById('fDone').addEventListener('input', () => {
+  document.getElementById('fDone').dataset.userEdited = 'true';
+  updatePreview();
+});
+document.getElementById('fWip').addEventListener('input', () => {
+  document.getElementById('fWip').dataset.userEdited = 'true';
+  updatePreview();
+});
+
+// fShip：残内訳の自動表示 ＋ プレビュー更新
+document.getElementById('fShip').addEventListener('input', () => {
+  const partId = document.getElementById('fPartId').value.trim();
+  autoFillRemaining(partId);
+  updatePreview();
+});
 </script>
 
 </body>
