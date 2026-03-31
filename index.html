@@ -6,6 +6,11 @@
 <title>月間出荷予定表</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════
+   DESIGN: Industrial precision calendar
+   Tone: Clean utilitarian factory dashboard
+   White bg, strong typographic hierarchy
+═══════════════════════════════════════════ */
 :root {
   --ok:        #15803d;
   --ok-light:  #dcfce7;
@@ -16,6 +21,7 @@
   --ng:        #b91c1c;
   --ng-light:  #fee2e2;
   --ng-mid:    #fca5a5;
+
   --ink:       #0f172a;
   --ink2:      #334155;
   --ink3:      #64748b;
@@ -23,14 +29,17 @@
   --border:    #e2e8f0;
   --surface:   #f8fafc;
   --white:     #ffffff;
+
   --r-sm: 6px;
   --r-md: 10px;
   --r-lg: 16px;
   --shadow-card: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.06);
   --shadow-modal: 0 8px 40px rgba(0,0,0,.18);
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
+
 body {
   font-family: 'Noto Sans JP', sans-serif;
   background: var(--white);
@@ -52,11 +61,24 @@ body {
   top: 0;
   z-index: 50;
 }
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-brand .brand-mark {
+  width: 28px; height: 28px;
+  background: var(--ink);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+}
 .header-brand h1 {
   font-size: 15px;
   font-weight: 900;
   letter-spacing: .04em;
 }
+.header-actions { display: flex; gap: 6px; align-items: center; }
+
 .btn-add {
   background: var(--ink);
   color: var(--white);
@@ -75,7 +97,7 @@ body {
 .btn-add:hover { background: #1e293b; }
 .btn-add:active { transform: scale(.97); }
 
-/* ── LEGEND ── */
+/* ── STATUS LEGEND ── */
 .legend-strip {
   border-bottom: 1px solid var(--border);
   padding: 8px 16px;
@@ -92,96 +114,28 @@ body {
   font-weight: 700;
   color: var(--ink3);
 }
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 .legend-dot.ok   { background: var(--ok); }
 .legend-dot.warn { background: var(--warn); }
 .legend-dot.ng   { background: var(--ng); }
 
-/* ── 直近の不足リスト ── */
-.ng-panel {
-  margin: 12px 12px 0;
-  border-radius: var(--r-md);
-  overflow: hidden;
-  border: 1.5px solid #fca5a5;
-}
-.ng-panel-header {
-  background: var(--ng);
-  color: var(--white);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .07em;
-  padding: 7px 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ng-panel-empty {
-  background: var(--surface);
-  padding: 12px 14px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink3);
-}
-.ng-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--ng-light);
-  border-top: 1px solid #fca5a5;
-  cursor: pointer;
-  transition: background .12s;
-}
-.ng-row:hover  { background: #ffd7d7; }
-.ng-row:active { background: var(--ng-mid); }
-.ng-row-id {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-.ng-row-name {
-  font-size: 11px;
-  color: var(--ink3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ng-row-date {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ng);
-  white-space: nowrap;
-}
-.ng-row-stock {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--ng);
-  white-space: nowrap;
-}
-.ng-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 8px 12px 0;
-}
-
-/* ── CALENDAR ── */
+/* ── CALENDAR CONTAINER ── */
 .cal-wrap {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 0 60px;
+  padding: 0 0 100px;
 }
+
+/* ── MONTH NAV ── */
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px 10px;
+  padding: 16px 16px 12px;
 }
 .month-label {
   font-size: 20px;
@@ -196,12 +150,15 @@ body {
   background: var(--white);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: var(--ink2);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink2);
   transition: border-color .15s, background .15s;
 }
-.nav-btn:hover  { border-color: var(--ink); background: var(--surface); }
+.nav-btn:hover { border-color: var(--ink); background: var(--surface); }
 .nav-btn:active { background: var(--border); }
 
+/* ── DOW HEADER ── */
 .dow-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -219,12 +176,14 @@ body {
 .dow-cell:first-child { color: #ef4444; }
 .dow-cell:last-child  { color: #3b82f6; }
 
+/* ── CALENDAR GRID ── */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 3px;
   padding: 0 12px;
 }
+
 .cal-day {
   aspect-ratio: 1 / 1.15;
   border-radius: var(--r-sm);
@@ -241,245 +200,635 @@ body {
   background: var(--white);
   user-select: none;
 }
-.cal-day:not(.empty):hover  { border-color: var(--ink); background: var(--surface); }
+.cal-day:not(.empty):hover {
+  border-color: var(--ink);
+  background: var(--surface);
+}
 .cal-day:not(.empty):active { transform: scale(.95); }
 .cal-day.empty { cursor: default; opacity: 0; pointer-events: none; }
+.cal-day.other-month .day-num { color: var(--ink4); }
 .cal-day.today .day-num {
-  background: var(--ink); color: var(--white);
-  border-radius: 50%; width: 22px; height: 22px;
+  background: var(--ink);
+  color: var(--white);
+  border-radius: 50%;
+  width: 22px; height: 22px;
   display: flex; align-items: center; justify-content: center;
 }
 .cal-day.sunday  .day-num { color: #ef4444; }
 .cal-day.saturday .day-num { color: #3b82f6; }
 .cal-day.today .day-num { color: var(--white) !important; }
+
 .day-num {
-  font-size: 12px; font-weight: 700; line-height: 1; margin-bottom: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 3px;
   width: 22px; height: 22px;
   display: flex; align-items: center; justify-content: center;
 }
+
+/* (dots replaced by count badge) */
+
+/* Day with shipments gets subtle tint based on worst status */
 .cal-day.has-ng   { background: #ffe4e6; border: 2px solid #b91c1c !important; }
 .cal-day.has-warn { background: #fffdf0; }
 .cal-day.has-ok   { background: #f0faf4; }
+
+/* ── SHIP COUNT BADGE ON CALENDAR ── */
 .day-count {
-  font-size: 11px; font-weight: 900; line-height: 1;
-  padding: 2px 5px; border-radius: 4px; margin-top: 1px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-top: 1px;
 }
 .day-count.ng   { background: #b91c1c; color: #fff; }
 .day-count.warn { background: var(--warn); color: #fff; }
 .day-count.ok   { background: var(--ok); color: #fff; }
-.cal-day.ng-filter-dim { opacity: .3; }
-.cal-day.first-negative { outline: 2px dashed var(--ng); outline-offset: -2px; }
-.cal-day.first-negative::after {
-  content: '▼'; position: absolute; bottom: 2px; right: 3px;
-  font-size: 7px; color: var(--ng);
-}
 
-/* ── DETAIL SHEET ── */
+/* ── DETAIL PANEL (slide up) ── */
 .detail-overlay {
-  position: fixed; inset: 0; z-index: 100;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  pointer-events: none; opacity: 0; transition: opacity .2s;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
 }
-.detail-overlay.open { opacity: 1; pointer-events: all; }
+.detail-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
 .detail-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(15,23,42,.45); backdrop-filter: blur(2px);
+  position: absolute;
+  inset: 0;
+  background: rgba(15,23,42,.45);
+  backdrop-filter: blur(2px);
 }
 .detail-sheet {
-  position: relative; background: var(--white);
+  position: relative;
+  background: var(--white);
   border-radius: var(--r-lg) var(--r-lg) 0 0;
-  max-height: 80vh; overflow-y: auto;
+  max-height: 80vh;
+  overflow-y: auto;
   transform: translateY(40px);
   transition: transform .25s cubic-bezier(.32,1.2,.6,1);
   box-shadow: var(--shadow-modal);
 }
 .detail-overlay.open .detail-sheet { transform: translateY(0); }
+
 .sheet-handle {
-  width: 36px; height: 4px; background: var(--border);
-  border-radius: 2px; margin: 10px auto 0;
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 10px auto 0;
 }
 .sheet-header {
   padding: 14px 16px 10px;
   border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .sheet-date {
-  font-size: 17px; font-weight: 900;
-  display: flex; align-items: center; gap: 8px;
+  font-size: 17px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .sheet-close {
-  width: 30px; height: 30px; border: 1.5px solid var(--border);
-  border-radius: 50%; background: var(--white); cursor: pointer;
+  width: 30px; height: 30px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: var(--white);
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--ink3); transition: border-color .15s;
+  font-size: 14px;
+  color: var(--ink3);
+  transition: border-color .15s;
 }
 .sheet-close:hover { border-color: var(--ink); color: var(--ink); }
+
 .sheet-filter {
-  padding: 8px 16px; display: flex; gap: 6px;
-  border-bottom: 1px solid var(--border); background: var(--surface);
+  padding: 8px 16px;
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 .chip-filter {
-  font-size: 11px; font-weight: 700; padding: 4px 10px;
-  border-radius: 20px; border: 1.5px solid var(--border);
-  background: var(--white); cursor: pointer; transition: all .15s;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  transition: all .15s;
 }
 .chip-filter.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
 .chip-filter:not(.active):hover { border-color: var(--ink3); }
-.sheet-cards { padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 10px; }
+
+.sheet-cards {
+  padding: 12px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 /* ── ITEM CARD ── */
 .item-card {
-  border-radius: var(--r-md); border: 1.5px solid var(--border);
-  overflow: hidden; box-shadow: var(--shadow-card);
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
   animation: slideIn .2s ease both;
 }
-.item-card.ng { border: 2px solid #b91c1c; }
+.item-card.ng {
+  border: 2px solid #b91c1c;
+}
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .card-top {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; padding: 10px 14px 8px; gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  gap: 8px;
 }
-.card-id-block { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .card-part {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 15px; font-weight: 700; letter-spacing: .04em; color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--ink);
 }
-.card-part-name {
-  font-size: 11px; color: var(--ink3);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+.card-actions-row {
+  display: flex;
+  gap: 5px;
 }
-.card-actions-row { display: flex; gap: 5px; flex-shrink: 0; }
 .btn-card-edit, .btn-card-del {
-  border: none; border-radius: 5px; font-family: inherit;
-  font-size: 12px; font-weight: 700; padding: 8px 12px;
-  cursor: pointer; transition: all .12s; min-height: 36px;
+  border: none;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all .12s;
+  min-height: 36px;
 }
 .btn-card-edit { background: var(--surface); color: var(--ink3); border: 1px solid var(--border); }
 .btn-card-edit:hover { background: var(--border); color: var(--ink); }
 .btn-card-del  { background: var(--ng-light); color: var(--ng); }
 .btn-card-del:hover { background: var(--ng-mid); }
+
 .card-nums {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
-.num-box { padding: 8px 10px; text-align: center; border-right: 1px solid var(--border); }
+.num-box {
+  padding: 8px 10px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
 .num-box:last-child { border-right: none; }
 .num-box-label {
-  font-size: 9px; font-weight: 700; letter-spacing: .08em;
-  color: var(--ink4); text-transform: uppercase; margin-bottom: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--ink4);
+  text-transform: uppercase;
+  margin-bottom: 3px;
 }
-.num-box-val { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700; color: var(--ink); }
+.num-box-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
 .num-box.ship .num-box-label { color: #6366f1; }
 .num-box.ship .num-box-val   { color: #4338ca; }
 .num-box.done .num-box-label { color: #15803d; }
 .num-box.done .num-box-val   { color: #15803d; }
 .num-box.wip  .num-box-label { color: #b45309; }
 .num-box.wip  .num-box-val   { color: #b45309; }
+
 .card-result {
-  display: flex; align-items: center; justify-content: space-between; padding: 9px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
 }
 .card.ok   .card-result { background: var(--ok-light); }
 .card.warn .card-result { background: var(--warn-light); }
 .card.ng   .card-result { background: var(--ng-light); }
-.result-status { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+
+.result-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
 .card.ok   .result-status { color: var(--ok); }
 .card.warn .result-status { color: var(--warn); }
 .card.ng   .result-status { color: var(--ng); }
-.result-num { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; }
+
+.result-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
 .card.ok   .result-num { color: var(--ok); }
 .card.warn .result-num { color: var(--warn); }
 .card.ng   .result-num { color: var(--ng); font-size: 19px; }
 
 /* ── FORM MODAL ── */
 .form-overlay {
-  position: fixed; inset: 0; z-index: 200;
-  display: flex; align-items: flex-end; justify-content: center;
-  pointer-events: none; opacity: 0; transition: opacity .2s;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
 }
 .form-overlay.open { opacity: 1; pointer-events: all; }
-.form-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.5); }
+.form-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15,23,42,.5);
+}
 .form-sheet {
-  position: relative; background: var(--white);
+  position: relative;
+  background: var(--white);
   border-radius: var(--r-lg) var(--r-lg) 0 0;
-  width: 100%; max-width: 480px; padding: 20px 20px 40px;
+  width: 100%;
+  max-width: 480px;
+  padding: 20px 20px 40px;
   transform: translateY(50px);
   transition: transform .25s cubic-bezier(.32,1.2,.6,1);
-  box-shadow: var(--shadow-modal); max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-modal);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 .form-overlay.open .form-sheet { transform: translateY(0); }
+
 .form-title {
-  font-size: 16px; font-weight: 900; margin-bottom: 18px;
-  display: flex; align-items: center; justify-content: space-between;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .form-close {
-  width: 28px; height: 28px; border: 1.5px solid var(--border);
-  border-radius: 50%; background: transparent; cursor: pointer;
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; color: var(--ink3);
 }
 .form-close:hover { border-color: var(--ink); color: var(--ink); }
+
 .form-field { margin-bottom: 12px; }
 .form-field label {
-  display: block; font-size: 11px; font-weight: 700; color: var(--ink3);
-  letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
 }
 .form-field input {
-  width: 100%; padding: 11px 12px; border: 1.5px solid var(--border);
-  border-radius: var(--r-sm); font-size: 16px; font-family: inherit;
-  color: var(--ink); background: var(--white); outline: none;
-  transition: border-color .15s; -webkit-appearance: none;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  transition: border-color .15s;
+  -webkit-appearance: none;
 }
 .form-field input:focus { border-color: var(--ink); }
-.num-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.form-actions { display: flex; gap: 8px; margin-top: 18px; }
+
+.num-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
 .btn-cancel-form, .btn-save-form {
-  flex: 1; padding: 13px; border-radius: var(--r-sm);
-  font-family: inherit; font-size: 14px; font-weight: 700;
-  border: none; cursor: pointer; transition: all .15s;
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all .15s;
 }
 .btn-cancel-form { background: var(--surface); color: var(--ink3); border: 1.5px solid var(--border); }
 .btn-cancel-form:hover { background: var(--border); color: var(--ink); }
 .btn-save-form { background: var(--ink); color: var(--white); }
-.btn-save-form:hover  { background: #1e293b; }
+.btn-save-form:hover { background: #1e293b; }
 .btn-save-form:active { transform: scale(.98); }
 
+/* ── TODAY BANNER ── */
+.today-banner {
+  margin: 0 16px 10px;
+  padding: 8px 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 700;
+  color: #0369a1;
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+.today-banner.show { display: flex; }
+.today-banner.ng {
+  background: #fee2e2;
+  border-color: #b91c1c;
+  color: #b91c1c;
+}
+
 /* ── EMPTY STATE ── */
-.empty-sheet { padding: 40px 16px; text-align: center; color: var(--ink4); }
+.empty-sheet {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--ink4);
+}
 .empty-sheet svg { margin-bottom: 10px; }
 .empty-sheet p { font-size: 13px; }
+
+/* ── EMPTY + ADD BUTTON in sheet ── */
 .empty-add-btn {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
-  background: var(--ink); color: var(--white); border: none;
-  border-radius: var(--r-sm); font-family: inherit; font-size: 13px;
-  font-weight: 700; padding: 10px 18px; cursor: pointer; transition: background .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background .15s;
 }
 .empty-add-btn:hover { background: #1e293b; }
 
+/* NG filter dim */
+.cal-day.ng-filter-dim { opacity: .3; }
+.urgent-strip {
+  margin: 0 12px 0;
+  display: none;
+}
+.urgent-strip.show { display: block; }
+.urgent-strip-title {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--ng);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 10px 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.urgent-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 6px;
+}
+.urgent-card {
+  background: var(--ng-light);
+  border: 1.5px solid #b91c1c;
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background .12s;
+}
+.urgent-card:hover { background: var(--ng-mid); }
+.urgent-card:active { transform: scale(.98); }
+.urgent-card-left { display: flex; flex-direction: column; gap: 2px; }
+.urgent-card-part {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.urgent-card-date {
+  font-size: 11px;
+  color: var(--ng);
+  font-weight: 700;
+}
+.urgent-card-right {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--ng);
+}
+.urgent-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 12px 4px;
+}
+
 @media(min-width:560px) {
   .form-overlay { align-items: center; }
-  .form-sheet { border-radius: var(--r-lg); transform: scale(.95); max-height: 80vh; }
+  .form-sheet {
+    border-radius: var(--r-lg);
+    transform: scale(.95);
+    max-height: 80vh;
+  }
   .form-overlay.open .form-sheet { transform: scale(1); }
+
   .detail-sheet { border-radius: var(--r-lg); max-width: 540px; margin: auto; }
   .detail-overlay { align-items: center; }
 }
+
 @media(max-width:360px) {
   .day-num { font-size: 11px; width: 20px; height: 20px; }
   .day-count { font-size: 10px; padding: 1px 4px; }
 }
+
+/* ── TODAY JUMP FAB ── */
+.today-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: 24px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.22);
+  z-index: 40;
+  transition: background .15s, transform .1s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.today-fab:hover { background: #1e293b; }
+.today-fab:active { transform: scale(.95); }
+
+/* ── [NEW] HEADER STOCK DISPLAY ── */
+.header-stock {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+}
+.header-stock-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink4);
+  letter-spacing: .06em;
+}
+.header-stock-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ok);
+}
+.header-stock-val.warn { color: var(--warn); }
+.header-stock-val.ng   { color: var(--ng); }
+
+/* ── [NEW] INITIAL STOCK INPUT ── */
+.initial-stock-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.initial-stock-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.initial-stock-input {
+  width: 60px;
+  padding: 3px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--white);
+  outline: none;
+  -webkit-appearance: none;
+  text-align: right;
+}
+.initial-stock-input:focus { border-color: var(--ink); }
+
+/* ── [NEW] STOCK BADGE on calendar day ── */
+.day-stock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.day-stock.ok   { color: var(--ok);   background: var(--ok-light); }
+.day-stock.warn { color: var(--warn); background: var(--warn-light); }
+.day-stock.ng   { color: var(--ng);   background: var(--ng-light); }
+
+/* ── [NEW] FIRST NEGATIVE DATE highlight ── */
+.cal-day.first-negative {
+  outline: 2px dashed var(--ng);
+  outline-offset: -2px;
+}
+.cal-day.first-negative::after {
+  content: '▼';
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 7px;
+  color: var(--ng);
+}
+
+/* ── [NEW] STOCK INFO ROW in detail sheet ── */
+.stock-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.stock-info-label {
+  font-weight: 700;
+  color: var(--ink3);
+}
+.stock-info-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+.stock-info-val.ok   { color: var(--ok); }
+.stock-info-val.warn { color: var(--warn); }
+.stock-info-val.ng   { color: var(--ng); }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="app-header">
-  <div class="header-brand"><h1>月間出荷予定表</h1></div>
-  <button class="btn-add" onclick="openForm()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    追加
-  </button>
+  <div class="header-brand">
+    <h1>月間出荷予定表</h1>
+  </div>
+  <div class="header-actions">
+    <button class="btn-add" onclick="openForm()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      追加
+    </button>
+  </div>
 </header>
 
 <!-- LEGEND -->
@@ -495,26 +844,24 @@ body {
   </div>
 </div>
 
-<!-- 直近の不足リスト -->
-<div id="ngPanel" class="ng-panel" style="display:none">
-  <div class="ng-panel-header">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    直近の不足（3日以内）
-  </div>
-  <div id="ngRows"></div>
+<!-- URGENT NG STRIP -->
+<div class="urgent-strip" id="urgentStrip">
+  <div class="urgent-strip-title">🚨 直近の不足案件</div>
+  <div class="urgent-cards" id="urgentCards"></div>
 </div>
-<div class="ng-divider" id="ngDivider" style="display:none"></div>
+<div class="urgent-divider" id="urgentDivider" style="display:none"></div>
 
 <!-- CALENDAR -->
 <div class="cal-wrap">
   <div class="month-nav">
     <div class="month-label" id="monthLabel"></div>
     <div class="nav-btns">
-      <button class="nav-btn" onclick="prevMonth()">&#8249;</button>
+      <button class="nav-btn" onclick="prevMonth()">‹</button>
       <button class="nav-btn" onclick="goToday()">今</button>
-      <button class="nav-btn" onclick="nextMonth()">&#8250;</button>
+      <button class="nav-btn" onclick="nextMonth()">›</button>
     </div>
   </div>
+
   <div class="dow-header">
     <div class="dow-cell">日</div><div class="dow-cell">月</div>
     <div class="dow-cell">火</div><div class="dow-cell">水</div>
@@ -531,12 +878,13 @@ body {
     <div class="sheet-handle"></div>
     <div class="sheet-header">
       <div class="sheet-date" id="sheetDate"></div>
-      <button class="sheet-close" onclick="closeDetail()">&#x2715;</button>
+      <button class="sheet-close" onclick="closeDetail()">✕</button>
     </div>
-    <div class="sheet-filter">
+    <div class="sheet-filter" id="sheetFilter">
       <button class="chip-filter active" data-f="all" onclick="setSheetFilter('all',this)">すべて</button>
-      <button class="chip-filter" data-f="ng"  onclick="setSheetFilter('ng',this)">&#x1F534;不足のみ</button>
+      <button class="chip-filter" data-f="ng"  onclick="setSheetFilter('ng',this)">🔴不足のみ</button>
     </div>
+    <!-- [NEW] その日の在庫サマリー（品番ごとに表示するためここは削除→カード内に移動） -->
     <div class="sheet-cards" id="sheetCards"></div>
   </div>
 </div>
@@ -547,16 +895,26 @@ body {
   <div class="form-sheet">
     <div class="form-title">
       <span id="formTitle">案件を追加</span>
-      <button class="form-close" onclick="closeForm()">&#x2715;</button>
+      <button class="form-close" onclick="closeForm()">✕</button>
     </div>
     <div class="form-field">
       <label>品番</label>
-      <input type="text" id="fPartId" placeholder="例：A-1234" autocomplete="off" autocapitalize="characters"
-        oninput="onPartIdInput(this.value)">
+      <input type="text" id="fPartId" list="partIdList" placeholder="例：A-1234" autocomplete="off" autocapitalize="characters"
+        oninput="syncPartInfo(this.value, 'id')">
+      <datalist id="partIdList"></datalist>
     </div>
-    <div class="form-field">
+    <!-- 品名フィールド（初期在庫の代替） -->
+    <div class="form-field" id="fPartNameField">
       <label>品名</label>
-      <input type="text" id="fPartName" placeholder="例：六角ボルトM6" autocomplete="off">
+      <input type="text" id="fPartName" list="partNameList" placeholder="例：サンプル部品A" autocomplete="off"
+        oninput="syncPartInfo(this.value, 'name')">
+      <datalist id="partNameList"></datalist>
+    </div>
+    <!-- 現在庫ヒント（入力欄には反映しない → 重複防止） -->
+    <div id="fStockHint" style="display:none;margin:-6px 0 10px;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);font-size:11px;color:var(--ink3);">
+      <span style="font-weight:700;">現在の在庫：</span>
+      <span id="fStockHintVal" style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink);"></span>
+      <span style="margin-left:6px;font-size:10px;color:var(--ink4);">※ 完成品・仕掛品は今回の追加分のみ入力してください</span>
     </div>
     <div class="form-field">
       <label>出荷日</label>
@@ -568,11 +926,11 @@ body {
         <input type="number" id="fShip" placeholder="0" min="0" inputmode="numeric">
       </div>
       <div class="form-field">
-        <label>完成品</label>
+        <label>完成品 <span id="fDoneHint" style="font-weight:400;font-size:10px;color:var(--ink4);"></span></label>
         <input type="number" id="fDone" placeholder="0" min="0" inputmode="numeric">
       </div>
       <div class="form-field">
-        <label>仕掛品</label>
+        <label>仕掛品 <span id="fWipHint" style="font-weight:400;font-size:10px;color:var(--ink4);"></span></label>
         <input type="number" id="fWip"  placeholder="0" min="0" inputmode="numeric">
       </div>
     </div>
@@ -587,13 +945,23 @@ body {
 /* ═══════════════════════════════════════
    STATE
 ═══════════════════════════════════════ */
-const KEY = 'sc_items_v1';
+const KEY            = 'sc_items_v1';
+const PART_STOCKS_KEY = 'sc_part_stocks_v2'; // 品番ごとの初期在庫
+const PART_NAMES_KEY  = 'sc_part_names_v1';  // 品番ごとの品名
+
 let items      = [];
+let partStocks = {};  // { partId: initialStock }  品番ごとの初期在庫
+let partNames  = {};  // { partId: name }           品番ごとの品名
 let editId     = null;
 let viewYear, viewMonth;
 let selectedDate = null;
 let sheetFilter  = 'all';
+
+// 安全在庫（固定値）
 const safetyStock = 20;
+
+// 品番ごとの在庫タイムラインキャッシュ
+// { partId: { "YYYY-MM-DD": stock } }
 let stockTimeline = {};
 
 const todayStr = (() => {
@@ -609,21 +977,52 @@ function uid() { return Date.now().toString(36)+Math.random().toString(36).slice
 function load() {
   try { items = JSON.parse(localStorage.getItem(KEY)) || seed(); }
   catch { items = seed(); }
+  try { partStocks = JSON.parse(localStorage.getItem(PART_STOCKS_KEY)) || {}; }
+  catch { partStocks = {}; }
+  try { partNames = JSON.parse(localStorage.getItem(PART_NAMES_KEY)) || {}; }
+  catch { partNames = {}; }
 }
-function persist() { localStorage.setItem(KEY, JSON.stringify(items)); }
+function persist() {
+  localStorage.setItem(KEY, JSON.stringify(items));
+  localStorage.setItem(PART_STOCKS_KEY, JSON.stringify(partStocks));
+  localStorage.setItem(PART_NAMES_KEY, JSON.stringify(partNames));
+}
+
+// 品番の初期在庫を取得（未設定は 0）
+function getInitialStock(partId) {
+  return partStocks[partId] ?? 0;
+}
 
 function seed() {
   const [y,m,d] = todayStr.split('-').map(Number);
   const fmt = (y,m,d) => `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
   const today = fmt(y,m,d);
   const plus = n => { const t=new Date(y,m-1,d+n); return fmt(t.getFullYear(),t.getMonth()+1,t.getDate()); };
+  // シードデータ用に初期在庫も設定
+  partStocks = {
+    'A-1001': 150,
+    'B-2045': 200,
+    'C-3320': 100,
+    'D-4788': 80,
+    'E-5512': 60,
+    'F-6001': 50,
+  };
+  // シードデータ用の品名
+  partNames = {
+    'A-1001': 'サンプル部品A',
+    'B-2045': 'サンプル部品B',
+    'C-3320': 'サンプル部品C',
+    'D-4788': 'サンプル部品D',
+    'E-5512': 'サンプル部品E',
+    'F-6001': 'サンプル部品F',
+  };
   return [
-    {id:uid(), partId:'A-1001', partName:'六角ボルトM6',   date:today,   ship:100, done:80,  wip:30},
-    {id:uid(), partId:'B-2045', partName:'スラスト軸受',   date:today,   ship:200, done:200, wip:0 },
-    {id:uid(), partId:'C-3320', partName:'プレスブラケット',date:plus(2), ship:150, done:60,  wip:50},
-    {id:uid(), partId:'D-4788', partName:'シールリング',   date:plus(2), ship:80,  done:80,  wip:10},
-    {id:uid(), partId:'E-5512', partName:'アングルブラケット',date:plus(3), ship:120, done:40, wip:20},
-    {id:uid(), partId:'F-6001', partName:'止めリング',     date:plus(7), ship:50,  done:50,  wip:5 },
+    {id:uid(), partId:'A-1001', date:today,   ship:100, done:80,  wip:30},
+    {id:uid(), partId:'B-2045', date:today,   ship:200, done:200, wip:0 },
+    {id:uid(), partId:'C-3320', date:plus(2), ship:150, done:60,  wip:50},
+    {id:uid(), partId:'D-4788', date:plus(2), ship:80,  done:80,  wip:10},
+    {id:uid(), partId:'E-5512', date:plus(5), ship:120, done:40,  wip:20},
+    {id:uid(), partId:'F-6001', date:plus(7), ship:50,  done:50,  wip:5 },
   ];
 }
 
@@ -631,50 +1030,74 @@ function seed() {
    在庫タイムライン計算（品番ごと）
    当日在庫 = 前日在庫 + 当日完成 - 当日出荷
    ※ wip は在庫計算に含めない（表示用のみ）
-   ※ 初期在庫は 0 固定
 ═══════════════════════════════════════ */
+
+/**
+ * 全品番の在庫タイムラインを計算する
+ * @returns { partId: { "YYYY-MM-DD": stock } }
+ */
 function calculateStockTimeline(items) {
+  // 品番ごとにイベントをグループ化
   const byPart = {};
   for (const it of items) {
     if (!byPart[it.partId]) byPart[it.partId] = [];
     byPart[it.partId].push(it);
   }
+
   const timelines = {};
+
   for (const [partId, partItems] of Object.entries(byPart)) {
+    const initStock = getInitialStock(partId);
+
+    // 日付ごとに ship・done を集計
     const dayMap = {};
     for (const it of partItems) {
-      if (!dayMap[it.date]) dayMap[it.date] = { ship:0, done:0 };
+      if (!dayMap[it.date]) dayMap[it.date] = { ship: 0, done: 0 };
       dayMap[it.date].ship += it.ship || 0;
       dayMap[it.date].done += it.done || 0;
     }
+
+    // 日付昇順でソートし在庫を連続計算
     const sortedDates = Object.keys(dayMap).sort();
     const timeline = {};
-    let stock = 0; // 初期在庫 0 固定
+    let stock = initStock;
+
     for (const date of sortedDates) {
       stock = stock + dayMap[date].done - dayMap[date].ship;
       timeline[date] = stock;
     }
+
     timelines[partId] = timeline;
   }
-  // デバッグ出力
+
+  // デバッグ：品番ごとの在庫推移をコンソール出力
   console.log('📦 在庫タイムライン（品番別）');
   for (const [partId, tl] of Object.entries(timelines)) {
+    const initStock = getInitialStock(partId);
     const lines = Object.entries(tl)
       .map(([date, s]) => `  ${date}  在庫:${String(s).padStart(6)}  ${judgeStock(s)==='ng'?'🔴':judgeStock(s)==='warn'?'🟡':'🟢'}`)
       .join('\n');
-    console.log(`  [${partId}]\n${lines}`);
+    console.log(`  [${partId}] 初期在庫:${initStock}\n${lines}`);
   }
+
   return timelines;
 }
 
-function refreshTimeline() { stockTimeline = calculateStockTimeline(items); }
+function refreshTimeline() {
+  stockTimeline = calculateStockTimeline(items);
+}
 
+/**
+ * 指定品番・日付の在庫を取得
+ * その日のイベントがなければ直前のイベント日の在庫を返す
+ */
 function getStockForPartOnDate(partId, dateStr) {
   const tl = stockTimeline[partId];
-  if (!tl) return 0;
+  if (!tl) return getInitialStock(partId);
   if (tl[dateStr] !== undefined) return tl[dateStr];
+  // 直前の在庫を返す
   const sortedDates = Object.keys(tl).sort();
-  let last = 0;
+  let last = getInitialStock(partId);
   for (const d of sortedDates) {
     if (d > dateStr) break;
     last = tl[d];
@@ -682,12 +1105,21 @@ function getStockForPartOnDate(partId, dateStr) {
   return last;
 }
 
+/**
+ * 在庫ベースのステータス判定
+ *   < 0             → 'ng'   不足
+ *   <= safetyStock  → 'warn' 要注意
+ *   それ以外        → 'ok'
+ */
 function judgeStock(stock) {
   if (stock < 0)            return 'ng';
   if (stock <= safetyStock) return 'warn';
   return 'ok';
 }
 
+/**
+ * 指定日に出荷予定のある品番の中で最悪ステータスを返す
+ */
 function getDayWorstStatus(dateStr) {
   const dayItems = items.filter(i => i.date === dateStr);
   if (dayItems.length === 0) return null;
@@ -701,80 +1133,28 @@ function getDayWorstStatus(dateStr) {
   return worst;
 }
 
+/**
+ * 今日時点でNGになっている品番の一覧
+ */
+function getNgPartsToday() {
+  const allPartIds = [...new Set(items.map(i => i.partId))];
+  return allPartIds.filter(partId => judgeStock(getStockForPartOnDate(partId, todayStr)) === 'ng');
+}
+
+/**
+ * 在庫がマイナスになった最初の日付（全品番横断）
+ */
 function firstNegativeDate() {
   let first = null;
-  for (const [, tl] of Object.entries(stockTimeline)) {
+  for (const tl of Object.values(stockTimeline)) {
     for (const [date, stock] of Object.entries(tl)) {
       if (stock < 0) {
         if (!first || date < first) first = date;
-        break;
+        break; // この品番の最初のNG日が見つかれば次の品番へ
       }
     }
   }
   return first;
-}
-
-// 品番に紐づく品名を返す（最新案件から取得）
-function getPartName(partId) {
-  const its = items.filter(i => i.partId === partId && i.partName).sort((a,b) => b.date.localeCompare(a.date));
-  return its.length > 0 ? its[0].partName : '';
-}
-
-/* ═══════════════════════════════════════
-   直近の不足リスト（今日〜3日以内・最大3件）
-═══════════════════════════════════════ */
-function renderNgPanel() {
-  // 3日後の日付を計算
-  const [y,m,d] = todayStr.split('-').map(Number);
-  const limit = new Date(y,m-1,d+3);
-  const limitStr = `${limit.getFullYear()}-${String(limit.getMonth()+1).padStart(2,'0')}-${String(limit.getDate()).padStart(2,'0')}`;
-
-  // 今日〜3日以内のNG（partId・date単位）を収集
-  const ngEvents = [];
-  for (const [partId, tl] of Object.entries(stockTimeline)) {
-    for (const [date, stock] of Object.entries(tl)) {
-      if (date >= todayStr && date <= limitStr && stock < 0) {
-        ngEvents.push({ partId, date, stock });
-      }
-    }
-  }
-
-  // 並び順：日付昇順 → 不足数降順（絶対値大 = 深刻）
-  ngEvents.sort((a, b) => {
-    if (a.date !== b.date) return a.date.localeCompare(b.date);
-    return a.stock - b.stock; // 負の値が小さい（より深刻）ほど先
-  });
-
-  const top = ngEvents.slice(0, 3);
-  const panel   = document.getElementById('ngPanel');
-  const rowsEl  = document.getElementById('ngRows');
-  const divider = document.getElementById('ngDivider');
-
-  if (top.length === 0) {
-    panel.style.display = 'block';
-    rowsEl.innerHTML = '<div class="ng-panel-empty">&#x2705; 不足はありません</div>';
-    divider.style.display = 'block';
-    return;
-  }
-
-  panel.style.display = 'block';
-  divider.style.display = 'block';
-
-  rowsEl.innerHTML = top.map(ev => {
-    const [ey,em,eday] = ev.date.split('-').map(Number);
-    const isToday  = ev.date === todayStr;
-    const dateLabel = isToday ? '今日' : `${em}/${eday}`;
-    const name = getPartName(ev.partId);
-    const nameHtml = name ? `<div class="ng-row-name">${escHtml(name)}</div>` : '';
-    return `<div class="ng-row" onclick="openDetail('${ev.date}')">
-      <div style="min-width:0">
-        <div class="ng-row-id">${escHtml(ev.partId)}</div>
-        ${nameHtml}
-      </div>
-      <span class="ng-row-date">${dateLabel}</span>
-      <span class="ng-row-stock">${ev.stock.toLocaleString()}</span>
-    </div>`;
-  }).join('');
 }
 
 /* ═══════════════════════════════════════
@@ -782,15 +1162,20 @@ function renderNgPanel() {
 ═══════════════════════════════════════ */
 function renderCalendar() {
   refreshTimeline();
+
   const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   document.getElementById('monthLabel').textContent = `${viewYear}年 ${monthNames[viewMonth]}`;
 
-  const firstNeg  = firstNegativeDate();
+  const firstNeg = firstNegativeDate();
+
+  
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
   const ngFilterOn = document.getElementById('calNgFilter').checked;
-  const lastDay   = new Date(viewYear, viewMonth+1, 0);
-  const dow0      = new Date(viewYear, viewMonth, 1).getDay();
-  const grid      = document.getElementById('calGrid');
-  grid.innerHTML  = '';
+  const firstDay = new Date(viewYear, viewMonth, 1);
+  const lastDay  = new Date(viewYear, viewMonth+1, 0);
+  const dow0 = firstDay.getDay();
 
   for (let i=0; i<dow0; i++) {
     const el = document.createElement('div');
@@ -799,21 +1184,23 @@ function renderCalendar() {
   }
 
   for (let d=1; d<=lastDay.getDate(); d++) {
-    const dateStr  = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dayItems = items.filter(i => i.date === dateStr);
-    const dow      = new Date(viewYear, viewMonth, d).getDay();
-    const dayStatus = getDayWorstStatus(dateStr);
+    const dow = new Date(viewYear, viewMonth, d).getDay();
+    const dayStatus = getDayWorstStatus(dateStr); // 品番横断での最悪ステータス
 
-    const el  = document.createElement('div');
-    let   cls = 'cal-day';
+    const el = document.createElement('div');
+    let cls = 'cal-day';
     if (dateStr === todayStr) cls += ' today';
     if (dow===0) cls += ' sunday';
     if (dow===6) cls += ' saturday';
+
     if (dayItems.length > 0 && dayStatus) {
       cls += ` has-${dayStatus}`;
       if (ngFilterOn && dayStatus !== 'ng') cls += ' ng-filter-dim';
     }
     if (dateStr === firstNeg) cls += ' first-negative';
+
     el.className = cls;
     el.setAttribute('data-date', dateStr);
 
@@ -822,17 +1209,60 @@ function renderCalendar() {
     numEl.textContent = d;
     el.appendChild(numEl);
 
+    // 出荷予定ある日: 件数バッジ（ステータス色付き）
     if (dayItems.length > 0 && dayStatus) {
       const badge = document.createElement('div');
       badge.className = `day-count ${dayStatus}`;
       badge.textContent = dayItems.length;
       el.appendChild(badge);
     }
+
     el.onclick = () => openDetail(dateStr);
     grid.appendChild(el);
   }
+  renderUrgentStrip();
+}
 
-  renderNgPanel();
+/* ═══════════════════════════════════════
+   URGENT STRIP
+═══════════════════════════════════════ */
+function renderUrgentStrip() {
+  // 今日以降でNGになる（品番・日付）ペアを収集
+  const ngEvents = [];
+  for (const [partId, tl] of Object.entries(stockTimeline)) {
+    for (const [date, stock] of Object.entries(tl)) {
+      if (date >= todayStr && stock < 0) {
+        ngEvents.push({ partId, date, stock });
+      }
+    }
+  }
+  ngEvents.sort((a,b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.stock - b.stock);
+  const top = ngEvents.slice(0, 4);
+
+  const strip   = document.getElementById('urgentStrip');
+  const divider = document.getElementById('urgentDivider');
+
+  if (top.length === 0) {
+    strip.classList.remove('show');
+    divider.style.display = 'none';
+    return;
+  }
+  strip.classList.add('show');
+  divider.style.display = 'block';
+
+  document.getElementById('urgentCards').innerHTML = top.map(ev => {
+    const [y,m,day] = ev.date.split('-').map(Number);
+    const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,day).getDay()];
+    const isToday = ev.date === todayStr;
+    const dateLabel = isToday ? '今日' : `${m}/${day}（${dow}）`;
+    return `<div class="urgent-card" onclick="openDetail('${ev.date}')">
+      <div class="urgent-card-left">
+        <span class="urgent-card-part">${escHtml(ev.partId)}</span>
+        <span class="urgent-card-date">${dateLabel}</span>
+      </div>
+      <span class="urgent-card-right">${ev.stock.toLocaleString()}</span>
+    </div>`;
+  }).join('');
 }
 
 /* ═══════════════════════════════════════
@@ -840,8 +1270,10 @@ function renderCalendar() {
 ═══════════════════════════════════════ */
 function openDetail(dateStr) {
   selectedDate = dateStr;
-  sheetFilter  = 'all';
-  document.querySelectorAll('.chip-filter').forEach(b => b.classList.toggle('active', b.dataset.f==='all'));
+  sheetFilter = 'all';
+  document.querySelectorAll('.chip-filter').forEach(b=>{
+    b.classList.toggle('active', b.dataset.f==='all');
+  });
   const [y,m,d] = dateStr.split('-').map(Number);
   const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,d).getDay()];
   const isToday = dateStr === todayStr;
@@ -855,21 +1287,26 @@ function closeDetail() {
   document.getElementById('detailOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-function setSheetFilter(f) {
+function setSheetFilter(f, btn) {
   sheetFilter = f;
-  document.querySelectorAll('.chip-filter').forEach(b => b.classList.toggle('active', b.dataset.f===f));
+  document.querySelectorAll('.chip-filter').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
   renderSheetCards();
 }
 
 function renderSheetCards() {
   const allDayItems = items.filter(i => i.date === selectedDate);
+
+  // 品番ごとのステータスで絞り込む
   const dayItems = allDayItems.filter(it => {
     if (sheetFilter === 'all') return true;
-    return judgeStock(getStockForPartOnDate(it.partId, selectedDate)) === sheetFilter;
+    const s = judgeStock(getStockForPartOnDate(it.partId, selectedDate));
+    return s === sheetFilter;
   }).sort((a,b) => {
-    const rank = {ng:0, warn:1, ok:2};
-    return rank[judgeStock(getStockForPartOnDate(a.partId,selectedDate))]
-         - rank[judgeStock(getStockForPartOnDate(b.partId,selectedDate))];
+    // NGを先頭に
+    const sa = judgeStock(getStockForPartOnDate(a.partId, selectedDate));
+    const sb = judgeStock(getStockForPartOnDate(b.partId, selectedDate));
+    const rank = { ng:0, warn:1, ok:2 };
+    return rank[sa] - rank[sb];
   });
 
   const cont = document.getElementById('sheetCards');
@@ -885,6 +1322,7 @@ function renderSheetCards() {
     </div>`;
     return;
   }
+
   if (dayItems.length === 0) {
     cont.innerHTML = `<div class="empty-sheet">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -893,20 +1331,19 @@ function renderSheetCards() {
   }
 
   const statusMap = { ok:['出荷OK','🟢'], warn:['要注意','🟡'], ng:['在庫不足','🔴'] };
+
   cont.innerHTML = dayItems.map((it, idx) => {
+    // 品番ごとの在庫を取得
     const partStock  = getStockForPartOnDate(it.partId, selectedDate);
     const partStatus = judgeStock(partStock);
     const [label, icon] = statusMap[partStatus];
-    const nameHtml = it.partName
-      ? `<div class="card-part-name" title="${escHtml(it.partName)}">${escHtml(it.partName)}</div>` : '';
+    const initSt = getInitialStock(it.partId);
+
     return `<div class="item-card card ${partStatus}" style="animation-delay:${idx*50}ms">
       <div class="card-top">
-        <div class="card-id-block">
-          <span class="card-part">${escHtml(it.partId)}</span>
-          ${nameHtml}
-        </div>
+        <span class="card-part">${escHtml(it.partId)}</span>
         <div class="card-actions-row">
-          <button class="btn-card-edit" onclick="openEdit('${it.id}')">&#x270F; 編集</button>
+          <button class="btn-card-edit" onclick="openEdit('${it.id}')">✏ 編集</button>
           <button class="btn-card-del"  onclick="deleteItem('${it.id}')">削除</button>
         </div>
       </div>
@@ -926,7 +1363,8 @@ function renderSheetCards() {
       </div>
       <div class="card-result">
         <span class="result-status">${icon} ${label}</span>
-        <span class="result-num">残 ${partStock.toLocaleString()}</span>
+        <!-- 品番ごとの残在庫を表示 -->
+        <span class="result-num" title="初期在庫: ${initSt}">残 ${partStock.toLocaleString()}</span>
       </div>
     </div>`;
   }).join('');
@@ -935,19 +1373,92 @@ function renderSheetCards() {
 /* ═══════════════════════════════════════
    FORM
 ═══════════════════════════════════════ */
-// 品番入力時：品名・完成品・仕掛品を同じ品番の最新案件から自動反映
-function onPartIdInput(partId) {
-  const trimmed = partId.trim();
-  if (!trimmed) return;
-  const same = items.filter(i => i.partId === trimmed).sort((a,b) => b.date.localeCompare(a.date));
-  if (same.length === 0) return;
-  const latest = same[0];
-  const nameEl = document.getElementById('fPartName');
-  const doneEl = document.getElementById('fDone');
-  const wipEl  = document.getElementById('fWip');
-  if (nameEl !== document.activeElement && latest.partName) nameEl.value = latest.partName;
-  if (doneEl !== document.activeElement) doneEl.value = latest.done ?? 0;
-  if (wipEl  !== document.activeElement) wipEl.value  = latest.wip  ?? 0;
+/* ═══════════════════════════════════════
+   FORM HELPERS
+═══════════════════════════════════════ */
+
+/** datalistを最新の品番・品名で更新 */
+function updateDatalist() {
+  const partIdList   = document.getElementById('partIdList');
+  const partNameList = document.getElementById('partNameList');
+  if (!partIdList || !partNameList) return;
+
+  // 全既知品番（items + partStocks）
+  const allPartIds = [...new Set([
+    ...items.map(i => i.partId),
+    ...Object.keys(partStocks),
+  ])];
+
+  partIdList.innerHTML = allPartIds.map(pid => {
+    const n = partNames[pid] ? ` — ${partNames[pid]}` : '';
+    return `<option value="${escHtml(pid)}">${escHtml(pid)}${escHtml(n)}</option>`;
+  }).join('');
+
+  partNameList.innerHTML = Object.entries(partNames).map(([pid, name]) =>
+    `<option value="${escHtml(name)}">${escHtml(name)} [${escHtml(pid)}]</option>`
+  ).join('');
+}
+
+/**
+ * 品番または品名が変更されたときの同期処理
+ * mode: 'id' = 品番入力から, 'name' = 品名入力から
+ *
+ * ★ 完成品・仕掛品の入力欄には自動入力しない（重複在庫防止）
+ * ★ 現在の在庫はヒントラベルとして表示するのみ
+ */
+function syncPartInfo(val, mode) {
+  const trimmed = val.trim();
+  const partIdInput   = document.getElementById('fPartId');
+  const nameInput     = document.getElementById('fPartName');
+  const hintEl        = document.getElementById('fStockHint');
+  const hintVal       = document.getElementById('fStockHintVal');
+  const doneHint      = document.getElementById('fDoneHint');
+  const wipHint       = document.getElementById('fWipHint');
+
+  let resolvedId   = '';
+  let resolvedName = '';
+
+  if (mode === 'id') {
+    resolvedId = trimmed;
+    resolvedName = partNames[trimmed] || '';
+    // 品名フィールドを補完（フォーカスがない場合のみ）
+    if (nameInput !== document.activeElement) nameInput.value = resolvedName;
+  } else {
+    // 品名から品番を逆引き
+    const found = Object.entries(partNames).find(([, n]) => n === trimmed);
+    if (found) {
+      resolvedId   = found[0];
+      resolvedName = trimmed;
+      if (partIdInput !== document.activeElement) partIdInput.value = resolvedId;
+    }
+  }
+
+  if (!resolvedId) {
+    hintEl.style.display = 'none';
+    doneHint.textContent = '';
+    wipHint.textContent  = '';
+    return;
+  }
+
+  // 現在の在庫をヒント表示（入力欄には反映しない → 重複防止）
+  const currentStock = getStockForPartOnDate(resolvedId, todayStr);
+  const initSt       = getInitialStock(resolvedId);
+
+  hintEl.style.display = 'block';
+  hintVal.textContent  = `${currentStock.toLocaleString()}`;
+
+  // 完成品・仕掛品ヒント：直近案件の値を参考値として表示のみ
+  const samePartItems = items
+    .filter(i => i.partId === resolvedId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  if (samePartItems.length > 0) {
+    const latest = samePartItems[0];
+    doneHint.textContent = `前回: ${latest.done ?? 0}`;
+    wipHint.textContent  = `前回: ${latest.wip  ?? 0}`;
+  } else {
+    doneHint.textContent = '';
+    wipHint.textContent  = '';
+  }
 }
 
 function openForm(prefillDate) {
@@ -959,6 +1470,10 @@ function openForm(prefillDate) {
   document.getElementById('fShip').value     = '';
   document.getElementById('fDone').value     = '0';
   document.getElementById('fWip').value      = '0';
+  document.getElementById('fStockHint').style.display = 'none';
+  document.getElementById('fDoneHint').textContent = '';
+  document.getElementById('fWipHint').textContent  = '';
+  updateDatalist();
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   setTimeout(() => document.getElementById('fPartId').focus(), 300);
@@ -969,11 +1484,15 @@ function openEdit(id) {
   editId = id;
   document.getElementById('formTitle').textContent = '案件を編集';
   document.getElementById('fPartId').value   = it.partId;
-  document.getElementById('fPartName').value = it.partName || '';
+  document.getElementById('fPartName').value = partNames[it.partId] || '';
   document.getElementById('fDate').value     = it.date;
   document.getElementById('fShip').value     = it.ship;
   document.getElementById('fDone').value     = it.done;
   document.getElementById('fWip').value      = it.wip;
+  document.getElementById('fStockHint').style.display = 'none';
+  document.getElementById('fDoneHint').textContent = '';
+  document.getElementById('fWipHint').textContent  = '';
+  updateDatalist();
   document.getElementById('formOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -985,20 +1504,32 @@ function saveItem() {
   const partId   = document.getElementById('fPartId').value.trim();
   const partName = document.getElementById('fPartName').value.trim();
   const date     = document.getElementById('fDate').value;
-  const ship     = parseInt(document.getElementById('fShip').value) || 0;
-  const done     = parseInt(document.getElementById('fDone').value) || 0;
-  const wip      = parseInt(document.getElementById('fWip').value)  || 0;
-  if (!partId || !date) { alert('品番と出荷日は必須です'); return; }
+  const ship     = parseInt(document.getElementById('fShip').value)     || 0;
+  const done     = parseInt(document.getElementById('fDone').value)     || 0;
+  const wip      = parseInt(document.getElementById('fWip').value)      || 0;
+  if (!partId || !date) {
+    alert('品番と出荷日は必須です');
+    return;
+  }
+  // 品名を保存（入力があれば更新）
+  if (partName) partNames[partId] = partName;
+
+  // 初期在庫：新規品番の場合のみ 0 で初期化（既存は変更しない → 重複防止）
+  if (partStocks[partId] === undefined) {
+    partStocks[partId] = 0;
+  }
+
   if (editId) {
     const idx = items.findIndex(i => i.id===editId);
-    if (idx>=0) items[idx] = { id:editId, partId, partName, date, ship, done, wip };
+    if (idx>=0) items[idx] = { id:editId, partId, date, ship, done, wip };
   } else {
-    items.push({ id:uid(), partId, partName, date, ship, done, wip });
+    items.push({ id:uid(), partId, date, ship, done, wip });
   }
   persist();
   closeForm();
   const [y,m] = date.split('-').map(Number);
-  viewYear = y; viewMonth = m-1;
+  viewYear  = y;
+  viewMonth = m-1;
   renderCalendar();
   openDetail(date);
 }
@@ -1014,15 +1545,19 @@ function deleteItem(id) {
    NAV
 ═══════════════════════════════════════ */
 function prevMonth() {
-  if (viewMonth===0) { viewYear--; viewMonth=11; } else viewMonth--;
+  if (viewMonth===0) { viewYear--; viewMonth=11; }
+  else viewMonth--;
   renderCalendar();
 }
 function nextMonth() {
-  if (viewMonth===11) { viewYear++; viewMonth=0; } else viewMonth++;
+  if (viewMonth===11) { viewYear++; viewMonth=0; }
+  else viewMonth++;
   renderCalendar();
 }
 function goToday() {
-  const t = new Date(); viewYear = t.getFullYear(); viewMonth = t.getMonth();
+  const t = new Date();
+  viewYear  = t.getFullYear();
+  viewMonth = t.getMonth();
   renderCalendar();
 }
 
@@ -1042,5 +1577,6 @@ viewYear  = now.getFullYear();
 viewMonth = now.getMonth();
 renderCalendar();
 </script>
+
 </body>
 </html>
