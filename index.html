@@ -1470,7 +1470,7 @@ function renderSheetCards() {
         <span class="card-part">${escHtml(it.partId)}</span>
         <div class="card-actions-row">
           <button class="btn-card-edit" onclick="openEdit('${it.id}')">✏ 編集</button>
-          <button class="btn-card-del"  onclick="deleteItem('${it.id}')">削除</button>
+          <button class="btn-card-del"  onclick="confirmDelete('${it.id}', this)">削除</button>
         </div>
       </div>
       <div class="card-nums">
@@ -1906,8 +1906,24 @@ function saveItem() {
   renderCalendar();
   openDetail(date);
 }
+function confirmDelete(id, btn) {
+  // すでに確認UIが出ていたらキャンセル扱いでリセット
+  const row = btn.closest('.card-actions-row');
+  if (row.dataset.confirming === 'true') {
+    row.dataset.confirming = 'false';
+    row.innerHTML = `
+      <button class="btn-card-edit" onclick="openEdit('${id}')">✏ 編集</button>
+      <button class="btn-card-del"  onclick="confirmDelete('${id}', this)">削除</button>`;
+    return;
+  }
+  // 確認UIを表示
+  row.dataset.confirming = 'true';
+  row.innerHTML = `
+    <span style="font-size:11px;font-weight:700;color:var(--ng);white-space:nowrap;">本当に削除？</span>
+    <button class="btn-card-del" style="background:var(--ng);color:#fff;" onclick="deleteItem('${id}')">はい</button>
+    <button class="btn-card-edit" onclick="confirmDelete('${id}', this)">いいえ</button>`;
+}
 function deleteItem(id) {
-  if (!confirm('この案件を削除しますか？')) return;
   items = items.filter(i => i.id!==id);
   persist();
   renderCalendar();
