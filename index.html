@@ -2,2104 +2,806 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>月間出荷予定表</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>出荷・在庫管理</title>
 <style>
-/* ═══════════════════════════════════════════
-   DESIGN: Industrial precision calendar
-   Tone: Clean utilitarian factory dashboard
-   White bg, strong typographic hierarchy
-═══════════════════════════════════════════ */
-:root {
-  --ok:        #15803d;
-  --ok-light:  #dcfce7;
-  --ok-mid:    #86efac;
-  --warn:      #b45309;
-  --warn-light:#fef9c3;
-  --warn-mid:  #fde047;
-  --ng:        #b91c1c;
-  --ng-light:  #fee2e2;
-  --ng-mid:    #fca5a5;
-
-  --ink:       #0f172a;
-  --ink2:      #334155;
-  --ink3:      #64748b;
-  --ink4:      #94a3b8;
-  --border:    #e2e8f0;
-  --surface:   #f8fafc;
-  --white:     #ffffff;
-
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 16px;
-  --shadow-card: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.06);
-  --shadow-modal: 0 8px 40px rgba(0,0,0,.18);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
-
-body {
-  font-family: 'Noto Sans JP', sans-serif;
-  background: var(--white);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ── HEADER ── */
-.app-header {
-  background: var(--white);
-  border-bottom: 2px solid var(--ink);
-  padding: 0 16px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.header-brand .brand-mark {
-  width: 28px; height: 28px;
-  background: var(--ink);
-  border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-}
-.header-brand h1 {
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: .04em;
-}
-.header-actions { display: flex; gap: 6px; align-items: center; }
-
-.btn-add {
-  background: var(--ink);
-  color: var(--white);
-  border: none;
-  border-radius: var(--r-sm);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 7px 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background .15s, transform .1s;
-}
-.btn-add:hover { background: #1e293b; }
-.btn-add:active { transform: scale(.97); }
-
-/* ── STATUS LEGEND ── */
-.legend-strip {
-  border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  background: var(--surface);
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink3);
-}
-.legend-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.legend-dot.ok   { background: var(--ok); }
-.legend-dot.warn { background: var(--warn); }
-.legend-dot.ng   { background: var(--ng); }
-
-/* ── CALENDAR CONTAINER ── */
-.cal-wrap {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 0 100px;
-}
-
-/* ── MONTH NAV ── */
-.month-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 16px 12px;
-}
-.month-label {
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: .03em;
-}
-.nav-btns { display: flex; gap: 6px; }
-.nav-btn {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--white);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink2);
-  transition: border-color .15s, background .15s;
-}
-.nav-btn:hover { border-color: var(--ink); background: var(--surface); }
-.nav-btn:active { background: var(--border); }
-
-/* ── DOW HEADER ── */
-.dow-header {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  padding: 0 12px;
-  margin-bottom: 4px;
-}
-.dow-cell {
-  text-align: center;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  color: var(--ink4);
-  padding: 4px 0;
-}
-.dow-cell:first-child { color: #ef4444; }
-.dow-cell:last-child  { color: #3b82f6; }
-
-/* ── CALENDAR GRID ── */
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 3px;
-  padding: 0 12px;
-}
-
-.cal-day {
-  aspect-ratio: 1 / 1.15;
-  border-radius: var(--r-sm);
-  border: 1.5px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 5px 2px 3px;
-  cursor: pointer;
-  transition: border-color .15s, background .15s, transform .1s;
-  position: relative;
-  min-width: 0;
-  background: var(--white);
-  user-select: none;
-}
-.cal-day:not(.empty):hover {
-  border-color: var(--ink);
-  background: var(--surface);
-}
-.cal-day:not(.empty):active { transform: scale(.95); }
-.cal-day.empty { cursor: default; opacity: 0; pointer-events: none; }
-.cal-day.other-month .day-num { color: var(--ink4); }
-.cal-day.today .day-num {
-  background: var(--ink);
-  color: var(--white);
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  display: flex; align-items: center; justify-content: center;
-}
-.cal-day.sunday  .day-num { color: #ef4444; }
-.cal-day.saturday .day-num { color: #3b82f6; }
-.cal-day.today .day-num { color: var(--white) !important; }
-
-.day-num {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 3px;
-  width: 22px; height: 22px;
-  display: flex; align-items: center; justify-content: center;
-}
-
-/* (dots replaced by count badge) */
-
-/* Day with shipments gets subtle tint based on worst status */
-.cal-day.has-ng   { background: #ffe4e6; border: 2px solid #b91c1c !important; }
-.cal-day.has-warn { background: #fffdf0; }
-.cal-day.has-ok   { background: #f0faf4; }
-
-/* ── SHIP COUNT BADGE ON CALENDAR ── */
-.day-count {
-  font-size: 11px;
-  font-weight: 900;
-  line-height: 1;
-  padding: 2px 5px;
-  border-radius: 4px;
-  margin-top: 1px;
-}
-.day-count.ng   { background: #b91c1c; color: #fff; }
-.day-count.warn { background: var(--warn); color: #fff; }
-.day-count.ok   { background: var(--ok); color: #fff; }
-
-/* ── DETAIL PANEL (slide up) ── */
-.detail-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .2s;
-}
-.detail-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-}
-.detail-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15,23,42,.45);
-  backdrop-filter: blur(2px);
-}
-.detail-sheet {
-  position: relative;
-  background: var(--white);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  max-height: 80vh;
-  overflow-y: auto;
-  transform: translateY(40px);
-  transition: transform .25s cubic-bezier(.32,1.2,.6,1);
-  box-shadow: var(--shadow-modal);
-}
-.detail-overlay.open .detail-sheet { transform: translateY(0); }
-
-.sheet-handle {
-  width: 36px; height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  margin: 10px auto 0;
-}
-.sheet-header {
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.sheet-date {
-  font-size: 17px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sheet-close {
-  width: 30px; height: 30px;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
-  background: var(--white);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  color: var(--ink3);
-  transition: border-color .15s;
-}
-.sheet-close:hover { border-color: var(--ink); color: var(--ink); }
-
-.sheet-filter {
-  padding: 8px 16px;
-  display: flex;
-  gap: 6px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-.chip-filter {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  background: var(--white);
-  cursor: pointer;
-  transition: all .15s;
-}
-.chip-filter.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
-.chip-filter:not(.active):hover { border-color: var(--ink3); }
-
-.sheet-cards {
-  padding: 12px 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ── ITEM CARD ── */
-.item-card {
-  border-radius: var(--r-md);
-  border: 1.5px solid var(--border);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  animation: slideIn .2s ease both;
-}
-.item-card.ng {
-  border: 2px solid #b91c1c;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px 8px;
-  gap: 8px;
-}
-.card-part {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  color: var(--ink);
-}
-.card-actions-row {
-  display: flex;
-  gap: 5px;
-}
-.btn-card-edit, .btn-card-del {
-  border: none;
-  border-radius: 5px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all .12s;
-  min-height: 36px;
-}
-.btn-card-edit { background: var(--surface); color: var(--ink3); border: 1px solid var(--border); }
-.btn-card-edit:hover { background: var(--border); color: var(--ink); }
-.btn-card-del  { background: var(--ng-light); color: var(--ng); }
-.btn-card-del:hover { background: var(--ng-mid); }
-
-.card-nums {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.num-box {
-  padding: 8px 10px;
-  text-align: center;
-  border-right: 1px solid var(--border);
-}
-.num-box:last-child { border-right: none; }
-.num-box-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  color: var(--ink4);
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.num-box-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.num-box.ship .num-box-label { color: #6366f1; }
-.num-box.ship .num-box-val   { color: #4338ca; }
-.num-box.done .num-box-label { color: #15803d; }
-.num-box.done .num-box-val   { color: #15803d; }
-.num-box.wip  .num-box-label { color: #b45309; }
-.num-box.wip  .num-box-val   { color: #b45309; }
-
-.card-result {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 14px;
-}
-.card.ok   .card-result { background: var(--ok-light); }
-.card.warn .card-result { background: var(--warn-light); }
-.card.ng   .card-result { background: var(--ng-light); }
-
-.result-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
-}
-.card.ok   .result-status { color: var(--ok); }
-.card.warn .result-status { color: var(--warn); }
-.card.ng   .result-status { color: var(--ng); }
-
-.result-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  font-weight: 700;
-}
-.card.ok   .result-num { color: var(--ok); }
-.card.warn .result-num { color: var(--warn); }
-.card.ng   .result-num { color: var(--ng); font-size: 19px; }
-
-/* ── FORM MODAL ── */
-.form-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .2s;
-}
-.form-overlay.open { opacity: 1; pointer-events: all; }
-.form-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15,23,42,.5);
-}
-.form-sheet {
-  position: relative;
-  background: var(--white);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  width: 100%;
-  max-width: 480px;
-  padding: 20px 20px 40px;
-  transform: translateY(50px);
-  transition: transform .25s cubic-bezier(.32,1.2,.6,1);
-  box-shadow: var(--shadow-modal);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-.form-overlay.open .form-sheet { transform: translateY(0); }
-
-.form-title {
-  font-size: 16px;
-  font-weight: 900;
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.form-close {
-  width: 28px; height: 28px;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: var(--ink3);
-}
-.form-close:hover { border-color: var(--ink); color: var(--ink); }
-
-.form-field { margin-bottom: 12px; }
-.form-field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink3);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.form-field input {
-  width: 100%;
-  padding: 11px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  font-size: 16px;
-  font-family: inherit;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
-  transition: border-color .15s;
-  -webkit-appearance: none;
-}
-.form-field input:focus { border-color: var(--ink); }
-
-.form-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-}
-.btn-cancel-form, .btn-save-form {
-  flex: 1;
-  padding: 13px;
-  border-radius: var(--r-sm);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all .15s;
-}
-.btn-cancel-form { background: var(--surface); color: var(--ink3); border: 1.5px solid var(--border); }
-.btn-cancel-form:hover { background: var(--border); color: var(--ink); }
-.btn-save-form { background: var(--ink); color: var(--white); }
-.btn-save-form:hover { background: #1e293b; }
-.btn-save-form:active { transform: scale(.98); }
-
-/* ── TODAY BANNER ── */
-.today-banner {
-  margin: 0 16px 10px;
-  padding: 8px 12px;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  border-radius: var(--r-sm);
-  font-size: 12px;
-  font-weight: 700;
-  color: #0369a1;
-  display: none;
-  align-items: center;
-  gap: 6px;
-}
-.today-banner.show { display: flex; }
-.today-banner.ng {
-  background: #fee2e2;
-  border-color: #b91c1c;
-  color: #b91c1c;
-}
-
-/* ── EMPTY STATE ── */
-.empty-sheet {
-  padding: 40px 16px;
-  text-align: center;
-  color: var(--ink4);
-}
-.empty-sheet svg { margin-bottom: 10px; }
-.empty-sheet p { font-size: 13px; }
-
-/* ── EMPTY + ADD BUTTON in sheet ── */
-.empty-add-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-  background: var(--ink);
-  color: var(--white);
-  border: none;
-  border-radius: var(--r-sm);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 18px;
-  cursor: pointer;
-  transition: background .15s;
-}
-.empty-add-btn:hover { background: #1e293b; }
-
-/* NG filter dim */
-.cal-day.ng-filter-dim { opacity: .3; }
-.urgent-strip {
-  margin: 0 12px 0;
-  display: none;
-}
-.urgent-strip.show { display: block; }
-.urgent-strip-title {
-  font-size: 11px;
-  font-weight: 900;
-  color: var(--ng);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  padding: 10px 4px 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.urgent-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 6px;
-}
-.urgent-card {
-  background: var(--ng-light);
-  border: 1.5px solid #b91c1c;
-  border-radius: var(--r-sm);
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: background .12s;
-}
-.urgent-card:hover { background: var(--ng-mid); }
-.urgent-card:active { transform: scale(.98); }
-.urgent-card-left { display: flex; flex-direction: column; gap: 2px; }
-.urgent-card-part {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.urgent-card-date {
-  font-size: 11px;
-  color: var(--ng);
-  font-weight: 700;
-}
-.urgent-card-right {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--ng);
-}
-.urgent-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 0 12px 4px;
-}
-
-@media(min-width:560px) {
-  .form-overlay { align-items: center; }
-  .form-sheet {
-    border-radius: var(--r-lg);
-    transform: scale(.95);
-    max-height: 80vh;
-  }
-  .form-overlay.open .form-sheet { transform: scale(1); }
-
-  .detail-sheet { border-radius: var(--r-lg); max-width: 540px; margin: auto; }
-  .detail-overlay { align-items: center; }
-}
-
-@media(max-width:360px) {
-  .day-num { font-size: 11px; width: 20px; height: 20px; }
-  .day-count { font-size: 10px; padding: 1px 4px; }
-}
-
-/* ── TODAY JUMP FAB ── */
-.today-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 20px;
-  background: var(--ink);
-  color: var(--white);
-  border: none;
-  border-radius: 24px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 10px 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,.22);
-  z-index: 40;
-  transition: background .15s, transform .1s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.today-fab:hover { background: #1e293b; }
-.today-fab:active { transform: scale(.95); }
-
-/* ── [NEW] HEADER STOCK DISPLAY ── */
-.header-stock {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 4px 10px;
-}
-.header-stock-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--ink4);
-  letter-spacing: .06em;
-}
-.header-stock-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ok);
-}
-.header-stock-val.warn { color: var(--warn); }
-.header-stock-val.ng   { color: var(--ng); }
-
-/* ── [NEW] INITIAL STOCK INPUT ── */
-.initial-stock-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.initial-stock-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--ink3);
-  letter-spacing: .04em;
-  white-space: nowrap;
-}
-.initial-stock-input {
-  width: 60px;
-  padding: 3px 6px;
-  border: 1.5px solid var(--border);
-  border-radius: 5px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
-  -webkit-appearance: none;
-  text-align: right;
-}
-.initial-stock-input:focus { border-color: var(--ink); }
-
-/* ── [NEW] STOCK BADGE on calendar day ── */
-.day-stock {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  padding: 2px 4px;
-  border-radius: 3px;
-  margin-top: 2px;
-}
-.day-stock.ok   { color: var(--ok);   background: var(--ok-light); }
-.day-stock.warn { color: var(--warn); background: var(--warn-light); }
-.day-stock.ng   { color: var(--ng);   background: var(--ng-light); }
-
-/* ── [NEW] FIRST NEGATIVE DATE highlight ── */
-.cal-day.first-negative {
-  outline: 2px dashed var(--ng);
-  outline-offset: -2px;
-}
-.cal-day.first-negative::after {
-  content: '▼';
-  position: absolute;
-  bottom: 2px;
-  right: 3px;
-  font-size: 7px;
-  color: var(--ng);
-}
-
-/* ── [NEW] STOCK INFO ROW in detail sheet ── */
-.stock-info-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-}
-.stock-info-label {
-  font-weight: 700;
-  color: var(--ink3);
-}
-.stock-info-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  font-weight: 700;
-}
-.stock-info-val.ok   { color: var(--ok); }
-.stock-info-val.warn { color: var(--warn); }
-.stock-info-val.ng   { color: var(--ng); }
-
-/* ══════════════════════════════════════
-   FORM: INPUT / RESULT SEPARATION
-══════════════════════════════════════ */
-
-/* セクションラベル */
-.form-section-label {
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--ink4);
-  margin: 14px 0 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.form-section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* ① 入力エリア */
-.input-area {
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 14px 14px 4px;
-}
-.input-area .form-field { margin-bottom: 12px; }
-.input-area .form-field label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink2);
-  letter-spacing: .04em;
-  text-transform: none;
-  margin-bottom: 6px;
-}
-.input-area .form-field label small {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--ink4);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1px 7px;
-  letter-spacing: 0;
-}
-.input-area .form-field input {
-  width: 100%;
-  padding: 11px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  font-size: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  color: var(--ink);
-  background: var(--white);
-  outline: none;
-  transition: border-color .15s, box-shadow .15s;
-  -webkit-appearance: none;
-}
-.input-area .form-field input:focus {
-  border-color: var(--ink);
-  box-shadow: 0 0 0 3px rgba(15,23,42,.07);
-}
-.input-area .num-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-/* 出荷数フィールド：強調 */
-.ship-field input {
-  font-size: 24px !important;
-  border-color: #6366f1 !important;
-  color: #4338ca !important;
-}
-.ship-field input:focus {
-  border-color: #4338ca !important;
-  box-shadow: 0 0 0 3px rgba(99,102,241,.12) !important;
-}
-.ship-field label { color: #4338ca !important; }
-
-/* 自動入力フィールドの視覚フィードバック */
-.form-field input.auto-filled {
-  background: #f0fdf4 !important;
-  border-color: #86efac !important;
-  color: #166534 !important;
-}
-.form-field input.auto-filled:focus {
-  border-color: #16a34a !important;
-  box-shadow: 0 0 0 3px rgba(22,163,74,.1) !important;
-}
-.auto-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 9px;
-  font-weight: 700;
-  color: #16a34a;
-  background: #dcfce7;
-  border: 1px solid #86efac;
-  border-radius: 4px;
-  padding: 1px 5px;
-  letter-spacing: .03em;
-  animation: fadeIn .2s ease;
-}
-@keyframes fadeIn { from { opacity:0; transform:scale(.9); } to { opacity:1; transform:scale(1); } }
-.save-note {
-  margin-top: 6px;
-  font-size: 10px;
-  color: var(--ink4);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ② 結果カード */
-.result-card {
-  margin-top: 10px;
-  border-radius: var(--r-md);
-  overflow: hidden;
-  border: 2px solid var(--border);
-  transition: border-color .2s;
-}
-.result-card.ok   { border-color: var(--ok-mid); }
-.result-card.warn { border-color: var(--warn-mid); }
-.result-card.ng   { border-color: var(--ng-mid); }
-
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 14px;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  color: var(--ink3);
-  transition: background .2s, color .2s;
-}
-.result-card.ok   .result-header { background: var(--ok-light);   color: var(--ok); }
-.result-card.warn .result-header { background: var(--warn-light); color: var(--warn); }
-.result-card.ng   .result-header { background: var(--ng-light);   color: var(--ng); }
-
-.result-header-status {
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.result-row {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-}
-.r-box {
-  flex: 1;
-  text-align: center;
-  padding: 10px 4px;
-  border-right: 1px solid var(--border);
-}
-.r-box:last-child { border-right: none; }
-.r-box-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  color: var(--ink4);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.r-box-val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.r-box-val.dim { color: var(--ink4); font-size: 14px; }
-
-.result-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 14px;
-  font-weight: 700;
-  font-size: 13px;
-}
-.result-card.ok   .result-footer { background: var(--ok-light); }
-.result-card.warn .result-footer { background: var(--warn-light); }
-.result-card.ng   .result-footer { background: var(--ng-light); }
-
-#previewStatus { font-size: 13px; font-weight: 900; }
-#previewStatus.ok   { color: var(--ok); }
-#previewStatus.warn { color: var(--warn); }
-#previewStatus.ng   { color: var(--ng); }
-
-#previewStockWrap {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--ink3);
-}
-#previewStock {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 900;
-}
-#previewStock.ok   { color: var(--ok); }
-#previewStock.warn { color: var(--warn); }
-#previewStock.ng   { color: var(--ng); }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;font-size:13px;background:#f4f6f5;color:#1a1a1a;min-height:100vh}
+.app-header{background:#1a6b45;color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.15);position:sticky;top:0;z-index:50}
+.app-logo{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.header-actions{display:flex;gap:8px}
+.hbtn{padding:5px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font-size:12px;cursor:pointer;font-family:inherit}
+.hbtn:hover{background:rgba(255,255,255,.25)}
+.hbtn.primary{background:#fff;color:#1a6b45;border-color:#fff;font-weight:700}
+.hbtn.primary:hover{background:#e6f4ed}
+.tab-bar{background:#fff;border-bottom:1px solid #e0e0e0;padding:0 20px;display:flex;position:sticky;top:52px;z-index:40;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.tab-btn{padding:12px 20px;font-size:13px;font-weight:600;color:#999;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tab-btn.active{color:#1a6b45;border-bottom-color:#1a6b45}
+.tab-btn:hover:not(.active){color:#555}
+.main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.page-title{font-size:17px;font-weight:700;color:#1a1a1a}
+.nav-group{display:flex;align-items:center;gap:6px;margin-left:auto}
+.nbtn{width:30px;height:30px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#444}
+.nbtn:hover{background:#f0f0f0}
+.month-label{font-size:15px;font-weight:700;min-width:110px;text-align:center;color:#1a1a1a}
+.today-btn{padding:5px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;color:#444}
+.today-btn:hover{background:#f0f0f0}
+.cal-card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.dow-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#f7f9f8;border-bottom:1px solid #e0e8e4}
+.dow{padding:8px;font-size:11px;font-weight:700;color:#666;text-align:center;letter-spacing:.5px}
+.dow.sun{color:#c0392b}.dow.sat{color:#1a6b45}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cell{min-height:108px;border-right:1px solid #e8eee9;border-bottom:1px solid #e8eee9;padding:6px}
+.cell:nth-child(7n){border-right:none}
+.cell.other{background:#fafafa}
+.cell.today-cell{background:#f0faf4}
+.day-num{font-size:12px;font-weight:700;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-bottom:3px;color:#333}
+.cell.today-cell .day-num{background:#1a6b45;color:#fff}
+.day-num.sun-c{color:#c0392b}
+.day-num.sat-c{color:#1a6b45}
+.cell.other .day-num{color:#bbb}
+.chip{border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.6;display:block}
+.chip:hover{opacity:.82}
+.chip.warn-stock{outline:2px solid #dc2626;outline-offset:-1px}
+.chip.shipped{text-decoration:line-through;opacity:.45}
+.more-tag{font-size:10px;color:#888;cursor:pointer;margin-top:1px;padding:1px 4px}
+.more-tag:hover{color:#1a6b45}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:10px 14px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.sec-title{font-size:17px;font-weight:700;color:#1a1a1a}
+.totals-bar{display:flex;gap:10px;flex-wrap:wrap}
+.total-pill{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.total-pill.fin{background:#e6f4ed;color:#1a6b45}
+.total-pill.wip{background:#fff7ed;color:#d97706}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.prod-card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:16px 18px;border:1px solid #e8e8e8}
+.prod-name{font-size:14px;font-weight:700;color:#111;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.stock-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sbox{border-radius:8px;padding:10px 12px}
+.sbox.fin{background:#e6f4ed;border:1px solid #a7d9bc}
+.sbox.wip{background:#fff7ed;border:1px solid #fed7aa}
+.sbox-label{font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:3px}
+.sbox-label.fin{color:#1a6b45}
+.sbox-label.wip{color:#d97706}
+.sbox-val{font-size:22px;font-weight:700;line-height:1}
+.sbox-val.fin{color:#1a6b45}
+.sbox-val.wip{color:#d97706}
+.sbox-unit{font-size:11px;font-weight:400;color:#888;margin-left:2px}
+.proc-section{margin-bottom:10px}
+.proc-label{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.5px;margin-bottom:5px}
+.proc-row{display:flex;gap:3px}
+.proc-box{flex:1;display:flex;flex-direction:column;align-items:center;background:#f5f5f5;border-radius:6px;padding:5px 3px;border:1px solid #e5e5e5;min-width:0}
+.proc-box.active{background:#fff7ed;border-color:#fbbf24}
+.proc-step{font-size:9px;font-weight:700;color:#bbb;margin-bottom:2px}
+.proc-step.active{color:#d97706}
+.proc-qty{font-size:12px;font-weight:700;color:#ccc}
+.proc-qty.active{color:#d97706}
+.avail-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:7px;margin-bottom:10px}
+.avail-bar.ok{background:#e6f4ed}
+.avail-bar.warn{background:#fef2f2}
+.avail-label{font-size:11px;font-weight:700}
+.avail-label.ok{color:#1a6b45}
+.avail-label.warn{color:#dc2626}
+.avail-qty{font-size:14px;font-weight:700}
+.avail-qty.ok{color:#1a6b45}
+.avail-qty.warn{color:#dc2626}
+.comp-btn{width:100%;padding:8px;border-radius:7px;border:none;background:#d97706;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.comp-btn:hover{background:#b45309}
+.comp-btn:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:#fff;border-radius:14px;padding:22px 24px;width:380px;max-width:94vw;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.modal-title{font-size:15px;font-weight:700;color:#111;margin-top:4px}
+.modal-close{width:28px;height:28px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#555;border:none;flex-shrink:0}
+.modal-close:hover{background:#e0e0e0}
+.mrow{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.mrow:last-child{border-bottom:none}
+.mkey{color:#999;min-width:80px;font-size:11px;padding-top:2px;font-weight:600}
+.mval{color:#111;font-weight:700}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:6px}
+.wip-chips{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.wip-chip{background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:700;color:#d97706}
+.stock-status{border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700;margin-top:8px;display:flex;align-items:center;gap:5px}
+.stock-status.ok{background:#e6f4ed;color:#1a6b45}
+.stock-status.warn{background:#fef2f2;color:#dc2626}
+.edit-panel{position:fixed;right:0;top:0;height:100%;width:340px;max-width:96vw;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.14);z-index:300;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease}
+.edit-panel.open{transform:translateX(0)}
+.ep-hdr{padding:16px 18px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;background:#1a6b45;color:#fff}
+.ep-title{font-size:14px;font-weight:700}
+.ep-close{background:rgba(255,255,255,.2);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:4px 10px;font-size:14px}
+.ep-body{flex:1;overflow-y:auto;padding:16px 18px}
+.ep-foot{padding:14px 18px;border-top:1px solid #e8e8e8;display:flex;gap:8px}
+label{display:block;font-size:11px;font-weight:700;color:#666;margin-bottom:4px;margin-top:12px;letter-spacing:.3px}
+label:first-child{margin-top:0}
+input[type=text],input[type=number],input[type=date],select{width:100%;padding:8px 10px;border:1px solid #d0d0d0;border-radius:7px;font-size:13px;font-family:inherit;background:#fff;color:#111;outline:none}
+input:focus,select:focus{border-color:#1a6b45;box-shadow:0 0 0 3px rgba(26,107,69,.12)}
+.btn{flex:1;padding:9px;border-radius:8px;border:none;font-size:13px;font-family:inherit;cursor:pointer;font-weight:700}
+.btn-primary{background:#1a6b45;color:#fff}
+.btn-primary:hover{background:#155836}
+.btn-del{background:#fef2f2;color:#c0392b;border:1px solid #fca5a5}
+.btn-del:hover{background:#fee2e2}
+.btn-cancel{background:#f3f4f6;color:#444;border:1px solid #e0e0e0}
+.btn-cancel:hover{background:#e5e7eb}
+.srow{display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-bottom:2px;user-select:none;transition:filter .1s}
+.srow:hover{filter:brightness(.9)}
+.srow.ng{background:#fee2e2;color:#dc2626}
+.srow.cond{background:#fef9c3;color:#a16207}
+.srow.ok{background:#dcfce7;color:#166534}
+.srow-icon{flex-shrink:0;font-size:9px}
+.slist-wrap{background:#fff;border-radius:14px;padding:20px 22px;width:420px;max-width:95vw;box-shadow:0 16px 48px rgba(0,0,0,.2);max-height:80vh;overflow-y:auto}
+.slist-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.slist-title{font-size:15px;font-weight:700;color:#111}
+.slist-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.slist-item:last-child{border-bottom:none}
+.slist-item:hover{background:#fafafa;margin:0 -8px;padding:8px 8px;border-radius:6px}
+.slist-icon{font-size:14px;flex-shrink:0}
+.slist-name{font-size:13px;font-weight:700;color:#111;flex:1;min-width:0}
+.slist-sub{font-size:11px;color:#888;white-space:nowrap}
+.slist-empty{text-align:center;color:#aaa;font-size:13px;padding:24px 0}
+@media(max-width:640px){
+  .modal-bg.slist-bg{align-items:flex-end}
+  .slist-wrap{width:100%;border-radius:16px 16px 0 0;padding:16px 16px 36px;max-height:72vh}
+}
+.fab{position:fixed;bottom:28px;right:24px;width:52px;height:52px;border-radius:50%;background:#1a6b45;color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(26,107,69,.4);display:flex;align-items:center;justify-content:center;z-index:100}
+.fab:hover{background:#155836;transform:scale(1.06)}
+@media print{.app-header .header-actions,.fab,.edit-panel,.tab-bar{display:none!important}body{background:#fff}.main{padding:10px}}
+.search-wrap{position:relative;margin-bottom:14px}
+.search-input{width:100%;padding:9px 14px 9px 36px;border:1px solid #d0d0d0;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#111;outline:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.search-input:focus{border-color:#1a6b45;box-shadow:0 0 0 3px rgba(26,107,69,.12)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;color:#aaa;pointer-events:none}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#aaa;padding:2px 4px;line-height:1}
+.search-clear:hover{color:#555}
+.sresult-list{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+.sresult-hdr{padding:10px 16px;background:#f7f9f8;border-bottom:1px solid #e8eee9;font-size:12px;font-weight:700;color:#666}
+.sresult-item{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.sresult-item:last-child{border-bottom:none}
+.sresult-item:hover{background:#f9fafb}
+.sresult-date{font-size:11px;color:#aaa;min-width:90px;flex-shrink:0}
+.sresult-name{font-size:13px;font-weight:700;color:#111;flex:1;min-width:0}
+.sresult-qty{font-size:12px;color:#888;font-weight:600;white-space:nowrap}
+.sresult-st{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sresult-empty{padding:32px 16px;text-align:center;color:#aaa;font-size:13px}
+@media(max-width:640px){.search-input{font-size:16px}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="app-header">
-  <div class="header-brand">
-    <h1>月間出荷予定表</h1>
+  <div class="app-logo">
+    <div class="logo-icon">📦</div>出荷・在庫管理
   </div>
   <div class="header-actions">
-    <button class="btn-add" onclick="openForm()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      追加
-    </button>
+    <button class="hbtn" onclick="window.print()">🖨 印刷</button>
+    <button class="hbtn primary" onclick="openAdd()">＋ 出荷追加</button>
   </div>
 </header>
 
-<!-- LEGEND -->
-<div class="legend-strip">
-  <div class="legend-item"><span class="legend-dot ok"></span>OK</div>
-  <div class="legend-item"><span class="legend-dot warn"></span>要注意</div>
-  <div class="legend-item"><span class="legend-dot ng"></span>不足</div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-    <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--ink3);cursor:pointer">
-      <input type="checkbox" id="calNgFilter" onchange="renderCalendar()" style="accent-color:#b91c1c;width:14px;height:14px">
-      不足のみ
-    </label>
+<div class="tab-bar">
+  <button class="tab-btn active" id="tbtn-cal">📅 出荷予定</button>
+</div>
+
+<div id="tab-cal">
+  <div class="main">
+    <div class="toolbar">
+      <div class="page-title">月間出荷予定表</div>
+      <div class="nav-group">
+        <button class="today-btn" onclick="goToday()">今月</button>
+        <button class="nbtn" onclick="prevMonth()">&#8249;</button>
+        <div class="month-label" id="mlabel"></div>
+        <button class="nbtn" onclick="nextMonth()">&#8250;</button>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search-input" type="text" placeholder="品名・品番で検索" oninput="onSearch(this.value)">
+      <button class="search-clear" id="search-clear" style="display:none" onclick="clearSearch()">✕</button>
+    </div>
+    <div id="search-results" style="display:none;margin-bottom:14px"></div>
+    <div id="cal-area">
+    <div class="cal-card">
+      <div class="dow-row">
+        <div class="dow sun">日</div><div class="dow">月</div><div class="dow">火</div>
+        <div class="dow">水</div><div class="dow">木</div><div class="dow">金</div>
+        <div class="dow sat">土</div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+    </div>
+
   </div>
 </div>
 
-<!-- URGENT NG STRIP -->
-<div class="urgent-strip" id="urgentStrip">
-  <div class="urgent-strip-title">🚨 直近の不足案件</div>
-  <div class="urgent-cards" id="urgentCards"></div>
-</div>
-<div class="urgent-divider" id="urgentDivider" style="display:none"></div>
 
-<!-- CALENDAR -->
-<div class="cal-wrap">
-  <div class="month-nav">
-    <div class="month-label" id="monthLabel"></div>
-    <div class="nav-btns">
-      <button class="nav-btn" onclick="prevMonth()">‹</button>
-      <button class="nav-btn" onclick="goToday()">今</button>
-      <button class="nav-btn" onclick="nextMonth()">›</button>
-    </div>
+<button class="fab" id="fab" onclick="openAdd()">＋</button>
+<div id="modal-wrap"></div>
+
+<div class="edit-panel" id="edit-panel">
+  <div class="ep-hdr">
+    <div class="ep-title" id="ep-title">出荷を追加</div>
+    <button class="ep-close" onclick="closePanel()">✕</button>
   </div>
+  <div class="ep-body">
+    <input type="hidden" id="ep-idx" value="-1">
+    <input type="hidden" id="ep-cat" value="">
+    <label>出荷日</label><input type="date" id="ep-date">
 
-  <div class="dow-header">
-    <div class="dow-cell">日</div><div class="dow-cell">月</div>
-    <div class="dow-cell">火</div><div class="dow-cell">水</div>
-    <div class="dow-cell">木</div><div class="dow-cell">金</div>
-    <div class="dow-cell">土</div>
+    <label>品番・製品名</label><input type="text" id="ep-item" placeholder="例：製品α-100">
+    <label>数量（個）</label><input type="number" id="ep-qty" min="1" placeholder="例：100">
+    <label>出荷先</label><input type="text" id="ep-dest" placeholder="例：東京倉庫">
+    <label>備考</label><input type="text" id="ep-note" placeholder="任意">
+    <div id="ep-stock-info" style="margin-top:12px"></div>
   </div>
-  <div class="cal-grid" id="calGrid"></div>
+  <div class="ep-foot" id="ep-foot"></div>
 </div>
-
-<!-- DETAIL SHEET -->
-<div class="detail-overlay" id="detailOverlay">
-  <div class="detail-backdrop" onclick="closeDetail()"></div>
-  <div class="detail-sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <div class="sheet-date" id="sheetDate"></div>
-      <button class="sheet-close" onclick="closeDetail()">✕</button>
-    </div>
-    <div class="sheet-filter" id="sheetFilter">
-      <button class="chip-filter active" data-f="all" onclick="setSheetFilter('all',this)">すべて</button>
-      <button class="chip-filter" data-f="ng"  onclick="setSheetFilter('ng',this)">🔴不足のみ</button>
-    </div>
-    <!-- [NEW] その日の在庫サマリー（品番ごとに表示するためここは削除→カード内に移動） -->
-    <div class="sheet-cards" id="sheetCards"></div>
-  </div>
-</div>
-
-<!-- FORM SHEET -->
-<div class="form-overlay" id="formOverlay">
-  <div class="form-backdrop" onclick="closeForm()"></div>
-  <div class="form-sheet">
-    <div class="form-title">
-      <span id="formTitle">案件を追加</span>
-      <button class="form-close" onclick="closeForm()">✕</button>
-    </div>
-    <div class="form-field">
-      <label>品番</label>
-      <input type="text" id="fPartId" list="partIdList" placeholder="例：A-1234" autocomplete="off" autocapitalize="characters"
-        oninput="syncPartInfo(this.value, 'id')">
-      <datalist id="partIdList"></datalist>
-    </div>
-    <div class="form-field" id="fPartNameField">
-      <label>品名</label>
-      <input type="text" id="fPartName" list="partNameList" placeholder="例：サンプル部品A" autocomplete="off"
-        oninput="syncPartInfo(this.value, 'name')">
-      <datalist id="partNameList"></datalist>
-    </div>
-    <div class="form-field">
-      <label>出荷日</label>
-      <input type="date" id="fDate">
-    </div>
-
-    <!-- 現在庫ヒント -->
-    <div id="fStockHint" style="display:none;margin:-4px 0 10px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);font-size:11px;color:var(--ink3);display:none;">
-      <span style="font-weight:700;">現在庫：</span>
-      <span id="fStockHintVal" style="font-family:'JetBrains Mono',monospace;font-weight:900;color:var(--ink);font-size:13px;"></span>
-    </div>
-
-    <!-- ① 入力エリア -->
-    <div class="form-section-label">入力（今回分のみ）</div>
-    <div class="input-area">
-      <!-- 出荷数：強調表示 -->
-      <div class="form-field ship-field">
-        <label>出荷数</label>
-        <input type="number" id="fShip" placeholder="0" min="0" inputmode="numeric">
-      </div>
-      <!-- 完成品・仕掛品：今回入荷分のみ -->
-      <div class="num-row">
-        <div class="form-field">
-          <label>完成品（今回分）<small id="fDoneHint"></small></label>
-          <input type="number" id="fDone" placeholder="0" min="0" inputmode="numeric">
-        </div>
-        <div class="form-field">
-          <label>仕掛品（今回分）<small id="fWipHint"></small></label>
-          <input type="number" id="fWip" placeholder="0" min="0" inputmode="numeric">
-        </div>
-      </div>
-      <div class="save-note" id="autoFillNote" style="display:none">
-        <span>💡</span><span>出荷後の残内訳を自動表示中。入力で上書き・保存に反映されます。</span>
-      </div>
-    </div>
-
-    <!-- ② 結果カード（自動計算） -->
-    <div class="form-section-label">結果（自動計算）</div>
-    <div class="result-card" id="previewCard" style="display:none">
-      <div class="result-header" id="previewHeader">
-        <span>出荷後の在庫</span>
-        <span class="result-header-status" id="previewStatus">—</span>
-      </div>
-      <div class="result-row">
-        <div class="r-box">
-          <div class="r-box-label">完成品残</div>
-          <div class="r-box-val" id="remainDone">—</div>
-        </div>
-        <div class="r-box">
-          <div class="r-box-label">仕掛品残</div>
-          <div class="r-box-val" id="remainWip">—</div>
-        </div>
-      </div>
-      <div class="result-footer" id="previewResult">
-        <span style="font-size:12px;color:var(--ink3);font-weight:700;">在庫残数</span>
-        <div id="previewStockWrap">
-          <span style="font-size:12px;font-weight:700;">残</span>
-          <span id="previewStock">0</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-actions">
-      <button class="btn-cancel-form" onclick="closeForm()">キャンセル</button>
-      <button class="btn-save-form"   onclick="saveItem()">保存する</button>
-    </div>
-  </div>
-</div>
+<div id="panel-bg" style="display:none;position:fixed;inset:0;z-index:299;background:rgba(0,0,0,.2)" onclick="closePanel()"></div>
 
 <script>
-/* ═══════════════════════════════════════
-   STATE
-═══════════════════════════════════════ */
-const KEY            = 'sc_items_v1';
-const PART_STOCKS_KEY = 'sc_part_stocks_v2'; // 品番ごとの初期在庫
-const PART_NAMES_KEY  = 'sc_part_names_v1';  // 品番ごとの品名
+/* ========== DATA ==========
+   ルール:
+   - process[0..5] = 工程①〜⑥ → すべて仕掛品(WIP)
+   - stock = 完成品（工程⑥完了操作後のみ加算）
+   - 出荷は stock からのみ減算（仕掛品からの出荷禁止）
+*/
+let CATS=[
+  {id:'A',label:'得意先 AAA',bg:'#dbeafe',tc:'#1e40af',prodId:'alpha'},
+  {id:'B',label:'得意先 BBB',bg:'#dcfce7',tc:'#166534',prodId:'beta'},
+  {id:'C',label:'得意先 CCC',bg:'#fef9c3',tc:'#854d0e',prodId:'gamma'},
+  {id:'D',label:'得意先 DDD',bg:'#ffe4e6',tc:'#9f1239',prodId:'delta'},
+  {id:'E',label:'得意先 EEE',bg:'#f3e8ff',tc:'#6b21a8',prodId:'eps'},
+  {id:'F',label:'得意先 FFF',bg:'#ffedd5',tc:'#9a3412',prodId:'zeta'},
+];
+let catMap=Object.fromEntries(CATS.map(c=>[c.id,c]));
+function rebuildCatMap(){catMap=Object.fromEntries(CATS.map(c=>[c.id,c]));}
+const COLOR_PRESETS=[
+  {name:'青',bg:'#dbeafe',tc:'#1e40af'},{name:'緑',bg:'#dcfce7',tc:'#166534'},
+  {name:'黄',bg:'#fef9c3',tc:'#854d0e'},{name:'赤',bg:'#ffe4e6',tc:'#9f1239'},
+  {name:'紫',bg:'#f3e8ff',tc:'#6b21a8'},{name:'橙',bg:'#ffedd5',tc:'#9a3412'},
+  {name:'水',bg:'#cffafe',tc:'#155e75'},{name:'桃',bg:'#fce7f3',tc:'#9d174d'},
+  {name:'灰',bg:'#f1f5f9',tc:'#334155'},{name:'茶',bg:'#fdf2e9',tc:'#7d4f00'},
+];
 
-let items      = [];
-let partStocks = {};  // { partId: initialStock }  品番ごとの初期在庫
-let partNames  = {};  // { partId: name }           品番ごとの品名
-let editId     = null;
-let viewYear, viewMonth;
-let selectedDate = null;
-let sheetFilter  = 'all';
+let PRODUCTS=[
+  {id:'alpha',name:'製品α',stock:650,process:[20,15,10,25, 8,12]},
+  {id:'beta', name:'製品β',stock:600,process:[30, 0,20,15,10, 5]},
+  {id:'gamma',name:'製品γ',stock:750,process:[ 0,25,30,10, 0,20]},
+  {id:'delta',name:'製品δ',stock:290,process:[10,10, 5,15,20,10]},
+  {id:'eps',  name:'製品ε',stock:250,process:[ 5, 0,10, 8,12, 0]},
+  {id:'zeta', name:'製品ζ',stock:140,process:[ 0, 5, 8, 0,10, 5]},
+];
+const prodMap=Object.fromEntries(PRODUCTS.map(p=>[p.id,p]));
 
-// 安全在庫（固定値）
-const safetyStock = 20;
+let SHIPS=[
+  {d:[2026,4, 1],cat:'A',item:'製品α-100',qty:120,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4, 1],cat:'D',item:'製品δ-400',qty: 60,dest:'大阪港',  note:'',shipped:false},
+  {d:[2026,4, 2],cat:'B',item:'製品β-200',qty: 80,dest:'名古屋DC',note:'',shipped:false},
+  {d:[2026,4, 3],cat:'C',item:'製品γ-300',qty:200,dest:'福岡倉庫',note:'',shipped:false},
+  {d:[2026,4, 4],cat:'E',item:'製品ε-500',qty: 50,dest:'仙台倉庫',note:'',shipped:false},
+  {d:[2026,4, 7],cat:'A',item:'製品α-110',qty: 95,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4, 7],cat:'F',item:'製品ζ-600',qty: 30,dest:'札幌DC',  note:'',shipped:false},
+  {d:[2026,4, 8],cat:'B',item:'製品β-210',qty:140,dest:'名古屋DC',note:'',shipped:false},
+  {d:[2026,4, 9],cat:'D',item:'製品δ-410',qty: 75,dest:'大阪港',  note:'',shipped:false},
+  {d:[2026,4,10],cat:'C',item:'製品γ-310',qty:180,dest:'福岡倉庫',note:'',shipped:false},
+  {d:[2026,4,11],cat:'A',item:'製品α-120',qty:110,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4,14],cat:'E',item:'製品ε-510',qty: 65,dest:'仙台倉庫',note:'',shipped:false},
+  {d:[2026,4,14],cat:'B',item:'製品β-220',qty: 90,dest:'名古屋DC',note:'',shipped:false},
+  {d:[2026,4,15],cat:'F',item:'製品ζ-610',qty: 45,dest:'札幌DC',  note:'',shipped:false},
+  {d:[2026,4,15],cat:'A',item:'製品α-130',qty:130,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4,16],cat:'D',item:'製品δ-420',qty: 88,dest:'大阪港',  note:'',shipped:false},
+  {d:[2026,4,17],cat:'C',item:'製品γ-320',qty:210,dest:'福岡倉庫',note:'',shipped:false},
+  {d:[2026,4,18],cat:'B',item:'製品β-230',qty:160,dest:'名古屋DC',note:'',shipped:false},
+  {d:[2026,4,21],cat:'A',item:'製品α-140',qty:100,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4,21],cat:'E',item:'製品ε-520',qty: 55,dest:'仙台倉庫',note:'',shipped:false},
+  {d:[2026,4,22],cat:'F',item:'製品ζ-620',qty: 40,dest:'札幌DC',  note:'',shipped:false},
+  {d:[2026,4,23],cat:'D',item:'製品δ-430',qty: 72,dest:'大阪港',  note:'',shipped:false},
+  {d:[2026,4,24],cat:'C',item:'製品γ-330',qty:195,dest:'福岡倉庫',note:'',shipped:false},
+  {d:[2026,4,25],cat:'B',item:'製品β-240',qty:125,dest:'名古屋DC',note:'',shipped:false},
+  {d:[2026,4,28],cat:'A',item:'製品α-150',qty:115,dest:'東京倉庫',note:'',shipped:false},
+  {d:[2026,4,28],cat:'F',item:'製品ζ-630',qty: 35,dest:'札幌DC',  note:'',shipped:false},
+  {d:[2026,4,30],cat:'E',item:'製品ε-530',qty: 70,dest:'仙台倉庫',note:'',shipped:false},
+];
 
-// 品番ごとの在庫タイムラインキャッシュ
-// { partId: { "YYYY-MM-DD": stock } }
-let stockTimeline = {};
+/* ========== WIP / STOCK LOGIC ==========
+   wip = 工程①〜⑥の合計（仕掛品）
+   available = stock(完成品) - 未出荷引当分
+   仕掛品は引当不可・出荷不可
+*/
+const SL=['①','②','③','④','⑤','⑥'];
+function getWip(p){return p.process.reduce((a,b)=>a+b,0)}
+function getReserved(prodId){return SHIPS.filter(s=>!s.shipped&&catMap[s.cat].prodId===prodId).reduce((a,s)=>a+s.qty,0)}
+function getAvailable(prodId){return prodMap[prodId].stock-getReserved(prodId)}
 
-const todayStr = (() => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-})();
+let cur=new Date(2026,3,1);
+const today=new Date();
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
 
-/* ═══════════════════════════════════════
-   DATA
-═══════════════════════════════════════ */
-function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
-
-function load() {
-  try { items = JSON.parse(localStorage.getItem(KEY)) || seed(); }
-  catch { items = seed(); }
-  try { partStocks = JSON.parse(localStorage.getItem(PART_STOCKS_KEY)) || {}; }
-  catch { partStocks = {}; }
-  try { partNames = JSON.parse(localStorage.getItem(PART_NAMES_KEY)) || {}; }
-  catch { partNames = {}; }
+/* ========== STATUS LOGIC ========== */
+function getShipStatus(s){
+  const c=catMap[s.cat];if(!c)return'ok';
+  const p=prodMap[c.prodId];if(!p)return'ok';
+  if(p.stock>=s.qty)return'ok';
+  if(p.stock+getWip(p)>=s.qty)return'cond';
+  return'ng';
 }
-function persist() {
-  localStorage.setItem(KEY, JSON.stringify(items));
-  localStorage.setItem(PART_STOCKS_KEY, JSON.stringify(partStocks));
-  localStorage.setItem(PART_NAMES_KEY, JSON.stringify(partNames));
-}
+const STATUS_META={ng:{icon:'🔴',label:'不足',cls:'ng'},cond:{icon:'🟡',label:'条件OK',cls:'cond'},ok:{icon:'🟢',label:'OK',cls:'ok'}};
 
-// 品番の初期在庫を取得（未設定は 0）
-function getInitialStock(partId) {
-  return partStocks[partId] ?? 0;
-}
-
-function seed() {
-  const [y,m,d] = todayStr.split('-').map(Number);
-  const fmt = (y,m,d) => `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  const today = fmt(y,m,d);
-  const plus = n => { const t=new Date(y,m-1,d+n); return fmt(t.getFullYear(),t.getMonth()+1,t.getDate()); };
-  // シードデータ用に初期在庫も設定
-  partStocks = {
-    'A-1001': 150,
-    'B-2045': 200,
-    'C-3320': 100,
-    'D-4788': 80,
-    'E-5512': 60,
-    'F-6001': 50,
-  };
-  // シードデータ用の品名
-  partNames = {
-    'A-1001': 'サンプル部品A',
-    'B-2045': 'サンプル部品B',
-    'C-3320': 'サンプル部品C',
-    'D-4788': 'サンプル部品D',
-    'E-5512': 'サンプル部品E',
-    'F-6001': 'サンプル部品F',
-  };
-  return [
-    {id:uid(), partId:'A-1001', date:today,   ship:100, done:80,  wip:30},
-    {id:uid(), partId:'B-2045', date:today,   ship:200, done:200, wip:0 },
-    {id:uid(), partId:'C-3320', date:plus(2), ship:150, done:60,  wip:50},
-    {id:uid(), partId:'D-4788', date:plus(2), ship:80,  done:80,  wip:10},
-    {id:uid(), partId:'E-5512', date:plus(5), ship:120, done:40,  wip:20},
-    {id:uid(), partId:'F-6001', date:plus(7), ship:50,  done:50,  wip:5 },
-  ];
-}
-
-/* ═══════════════════════════════════════
-   在庫計算（完成品・仕掛品 別々管理）
-   ルール：完成品から優先消費、不足分のみ仕掛品から消費
-   比率計算は一切禁止
-═══════════════════════════════════════ */
-
-/**
- * 指定品番の在庫を完成品・仕掛品に分けて計算（唯一の在庫計算関数）
- *
- * @param {string} partId   品番
- * @param {string|null} upToDate  この日以前のアイテムのみ集計（null=全件）
- * @param {string|null} excludeId このIDのアイテムを除外（編集時の二重計上防止）
- * @returns {{ done: number, wip: number, total: number }}
- */
-function calcStockDetail(partId, upToDate = null, excludeId = null) {
-  // 初期在庫は完成品として扱う
-  let doneStock = getInitialStock(partId);
-  let wipStock  = 0;
-
-  const list = items
-    .filter(i => {
-      if (i.partId !== partId) return false;
-      if (excludeId && i.id === excludeId) return false;
-      if (upToDate  && i.date > upToDate)  return false;
-      return true;
-    })
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  for (const item of list) {
-    // 入庫
-    doneStock += Number(item.done || 0);
-    wipStock  += Number(item.wip  || 0);
-
-    // 出荷：完成品から優先消費 → 不足分を仕掛品から消費
-    let ship = Number(item.ship || 0);
-    if (doneStock >= ship) {
-      doneStock -= ship;
-      ship = 0;
-    } else {
-      ship      -= doneStock;
-      doneStock  = 0;
+/* ========== CALENDAR ========== */
+function renderCal(){
+  const y=cur.getFullYear(),m=cur.getMonth();
+  document.getElementById('mlabel').textContent=y+'年'+(m+1)+'月';
+  const byDay={};
+  SHIPS.forEach((s,i)=>{if(s.d[0]===y&&s.d[1]===(m+1)){(byDay[s.d[2]]=byDay[s.d[2]]||[]).push(i)}});
+  const sd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate();
+  const total=Math.ceil((sd+dim)/7)*7;
+  let html='';
+  for(let i=0;i<total;i++){
+    let day,oth=false;
+    if(i<sd){day=pd-sd+i+1;oth=true;}
+    else if(i>=sd+dim){day=i-sd-dim+1;oth=true;}
+    else day=i-sd+1;
+    const dow=i%7,isT=!oth&&sameDay(new Date(y,m,day),today);
+    const di=(!oth&&byDay[day])||[];
+    const nc=dow===0?'sun-c':dow===6?'sat-c':'';
+    html+=`<div class="cell${oth?' other':''}${isT?' today-cell':''}"><div class="day-num ${nc}">${day}</div>`;
+    if(!oth&&di.length>0){
+      const counts={ng:0,cond:0,ok:0};
+      di.forEach(idx=>{
+        const s=SHIPS[idx];
+        if(!s.shipped)counts[getShipStatus(s)]++;
+        else counts.ok++; // 出荷済はOK扱い
+      });
+      ['ng','cond','ok'].forEach(st=>{
+        if(counts[st]>0){
+          const meta=STATUS_META[st];
+          html+=`<div class="srow ${meta.cls}" data-y="${y}" data-m="${m+1}" data-d="${day}" data-st="${st}"><span class="srow-icon">${meta.icon}</span>${meta.label} ${counts[st]}件</div>`;
+        }
+      });
     }
-    if (ship > 0) {
-      wipStock = Math.max(0, wipStock - ship);
-    }
+    html+='</div>';
   }
+  document.getElementById('grid').innerHTML=html;
+  document.getElementById('grid').addEventListener('click',e=>{
+    const row=e.target.closest('.srow');
+    if(row)showStatusList(+row.dataset.y,+row.dataset.m,+row.dataset.d,row.dataset.st);
+  },{once:false});
 
-  return { done: doneStock, wip: wipStock, total: doneStock + wipStock };
 }
 
-/**
- * 全品番の在庫タイムラインを計算（カレンダー表示用）
- * 各日付の total を calcStockDetail で算出
- * @returns { partId: { "YYYY-MM-DD": total } }
- */
-function calculateStockTimeline(items) {
-  const byPart = {};
-  for (const it of items) {
-    if (!byPart[it.partId]) byPart[it.partId] = [];
-    byPart[it.partId].push(it);
-  }
-
-  const timelines = {};
-
-  for (const partId of Object.keys(byPart)) {
-    const allDates = [...new Set(byPart[partId].map(i => i.date))].sort();
-    const timeline = {};
-    for (const date of allDates) {
-      timeline[date] = calcStockDetail(partId, date).total;
-    }
-    timelines[partId] = timeline;
-
-    // デバッグ出力
-    const initSt = getInitialStock(partId);
-    const lines = Object.entries(timeline)
-      .map(([d, s]) => `  ${d}  total:${String(s).padStart(6)}  ${judgeStock(s)==='ng'?'🔴':judgeStock(s)==='warn'?'🟡':'🟢'}`)
-      .join('\n');
-    console.log(`📦 [${partId}] 初期在庫:${initSt}\n${lines}`);
-  }
-
-  return timelines;
-}
-
-function refreshTimeline() {
-  stockTimeline = calculateStockTimeline(items);
-}
-
-/**
- * 指定品番・日付の在庫を取得
- * その日のイベントがなければ直前のイベント日の在庫を返す
- */
-function getStockForPartOnDate(partId, dateStr) {
-  const tl = stockTimeline[partId];
-  if (!tl) return getInitialStock(partId);
-  if (tl[dateStr] !== undefined) return tl[dateStr];
-  // 直前の在庫を返す
-  const sortedDates = Object.keys(tl).sort();
-  let last = getInitialStock(partId);
-  for (const d of sortedDates) {
-    if (d > dateStr) break;
-    last = tl[d];
-  }
-  return last;
-}
-
-/**
- * 在庫ベースのステータス判定
- *   < 0             → 'ng'   不足
- *   <= safetyStock  → 'warn' 要注意
- *   それ以外        → 'ok'
- */
-function judgeStock(stock) {
-  if (stock < 0)            return 'ng';
-  if (stock <= safetyStock) return 'warn';
-  return 'ok';
-}
-
-/**
- * 指定日に出荷予定のある品番の中で最悪ステータスを返す
- */
-function getDayWorstStatus(dateStr) {
-  const dayItems = items.filter(i => i.date === dateStr);
-  if (dayItems.length === 0) return null;
-  const partIds = [...new Set(dayItems.map(i => i.partId))];
-  let worst = 'ok';
-  for (const partId of partIds) {
-    const s = judgeStock(getStockForPartOnDate(partId, dateStr));
-    if (s === 'ng')   return 'ng';
-    if (s === 'warn') worst = 'warn';
-  }
-  return worst;
-}
-
-/**
- * 今日時点でNGになっている品番の一覧
- */
-function getNgPartsToday() {
-  const allPartIds = [...new Set(items.map(i => i.partId))];
-  return allPartIds.filter(partId => judgeStock(getStockForPartOnDate(partId, todayStr)) === 'ng');
-}
-
-/**
- * 在庫がマイナスになった最初の日付（全品番横断）
- */
-function firstNegativeDate() {
-  let first = null;
-  for (const tl of Object.values(stockTimeline)) {
-    for (const [date, stock] of Object.entries(tl)) {
-      if (stock < 0) {
-        if (!first || date < first) first = date;
-        break; // この品番の最初のNG日が見つかれば次の品番へ
-      }
-    }
-  }
-  return first;
-}
-
-/* ═══════════════════════════════════════
-   CALENDAR RENDER
-═══════════════════════════════════════ */
-function renderCalendar() {
-  refreshTimeline();
-
-  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  document.getElementById('monthLabel').textContent = `${viewYear}年 ${monthNames[viewMonth]}`;
-
-  const firstNeg = firstNegativeDate();
-
-  
-
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  const ngFilterOn = document.getElementById('calNgFilter').checked;
-  const firstDay = new Date(viewYear, viewMonth, 1);
-  const lastDay  = new Date(viewYear, viewMonth+1, 0);
-  const dow0 = firstDay.getDay();
-
-  for (let i=0; i<dow0; i++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day empty';
-    grid.appendChild(el);
-  }
-
-  for (let d=1; d<=lastDay.getDate(); d++) {
-    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dayItems = items.filter(i => i.date === dateStr);
-    const dow = new Date(viewYear, viewMonth, d).getDay();
-    const dayStatus = getDayWorstStatus(dateStr); // 品番横断での最悪ステータス
-
-    const el = document.createElement('div');
-    let cls = 'cal-day';
-    if (dateStr === todayStr) cls += ' today';
-    if (dow===0) cls += ' sunday';
-    if (dow===6) cls += ' saturday';
-
-    if (dayItems.length > 0 && dayStatus) {
-      cls += ` has-${dayStatus}`;
-      if (ngFilterOn && dayStatus !== 'ng') cls += ' ng-filter-dim';
-    }
-    if (dateStr === firstNeg) cls += ' first-negative';
-
-    el.className = cls;
-    el.setAttribute('data-date', dateStr);
-
-    const numEl = document.createElement('div');
-    numEl.className = 'day-num';
-    numEl.textContent = d;
-    el.appendChild(numEl);
-
-    // 出荷予定ある日: 件数バッジ（ステータス色付き）
-    if (dayItems.length > 0 && dayStatus) {
-      const badge = document.createElement('div');
-      badge.className = `day-count ${dayStatus}`;
-      badge.textContent = dayItems.length;
-      el.appendChild(badge);
-    }
-
-    el.onclick = () => openDetail(dateStr);
-    grid.appendChild(el);
-  }
-  renderUrgentStrip();
-}
-
-/* ═══════════════════════════════════════
-   URGENT STRIP
-═══════════════════════════════════════ */
-function renderUrgentStrip() {
-  // 今日以降でNGになる（品番・日付）ペアを収集
-  const ngEvents = [];
-  for (const [partId, tl] of Object.entries(stockTimeline)) {
-    for (const [date, stock] of Object.entries(tl)) {
-      if (date >= todayStr && stock < 0) {
-        ngEvents.push({ partId, date, stock });
-      }
-    }
-  }
-  ngEvents.sort((a,b) => a.date !== b.date ? a.date.localeCompare(b.date) : a.stock - b.stock);
-  const top = ngEvents.slice(0, 4);
-
-  const strip   = document.getElementById('urgentStrip');
-  const divider = document.getElementById('urgentDivider');
-
-  if (top.length === 0) {
-    strip.classList.remove('show');
-    divider.style.display = 'none';
-    return;
-  }
-  strip.classList.add('show');
-  divider.style.display = 'block';
-
-  document.getElementById('urgentCards').innerHTML = top.map(ev => {
-    const [y,m,day] = ev.date.split('-').map(Number);
-    const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,day).getDay()];
-    const isToday = ev.date === todayStr;
-    const dateLabel = isToday ? '今日' : `${m}/${day}（${dow}）`;
-    return `<div class="urgent-card" onclick="openDetail('${ev.date}')">
-      <div class="urgent-card-left">
-        <span class="urgent-card-part">${escHtml(ev.partId)}</span>
-        <span class="urgent-card-date">${dateLabel}</span>
+/* ========== INVENTORY ========== */
+function renderInv(){
+  const tF=PRODUCTS.reduce((a,p)=>a+p.stock,0),tW=PRODUCTS.reduce((a,p)=>a+getWip(p),0);
+  document.getElementById('totals-bar').innerHTML=`<div class="total-pill fin">● 完成品合計 ${tF.toLocaleString()}個</div><div class="total-pill wip">● 仕掛品合計 ${tW.toLocaleString()}個</div>`;
+  let html='';
+  PRODUCTS.forEach(p=>{
+    const wip=getWip(p),avail=getAvailable(p.id),warn=avail<0;
+    const pb=p.process.map((q,i)=>`<div class="proc-box${q>0?' active':''}"><div class="proc-step${q>0?' active':''}">工${SL[i]}</div><div class="proc-qty${q>0?' active':''}">${q}</div></div>`).join('');
+    html+=`<div class="prod-card">
+      <div class="prod-name"><span style="font-size:18px">📦</span>${p.name}</div>
+      <div class="stock-row">
+        <div class="sbox fin"><div class="sbox-label fin">完成品</div><span class="sbox-val fin">${p.stock.toLocaleString()}</span><span class="sbox-unit">個</span></div>
+        <div class="sbox wip"><div class="sbox-label wip">仕掛品（WIP）</div><span class="sbox-val wip">${wip.toLocaleString()}</span><span class="sbox-unit">個</span></div>
       </div>
-      <span class="urgent-card-right">${ev.stock.toLocaleString()}</span>
-    </div>`;
-  }).join('');
-}
-
-/* ═══════════════════════════════════════
-   DETAIL SHEET
-═══════════════════════════════════════ */
-function openDetail(dateStr) {
-  selectedDate = dateStr;
-  sheetFilter = 'all';
-  document.querySelectorAll('.chip-filter').forEach(b=>{
-    b.classList.toggle('active', b.dataset.f==='all');
-  });
-  const [y,m,d] = dateStr.split('-').map(Number);
-  const dow = ['日','月','火','水','木','金','土'][new Date(y,m-1,d).getDay()];
-  const isToday = dateStr === todayStr;
-  document.getElementById('sheetDate').innerHTML =
-    `${m}月${d}日（${dow}）${isToday ? '<span style="font-size:11px;background:#fef9c3;color:#92400e;padding:2px 7px;border-radius:4px;font-weight:700;margin-left:6px">TODAY</span>' : ''}`;
-  renderSheetCards();
-  document.getElementById('detailOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function setSheetFilter(f, btn) {
-  sheetFilter = f;
-  document.querySelectorAll('.chip-filter').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
-  renderSheetCards();
-}
-
-function renderSheetCards() {
-  const allDayItems = items.filter(i => i.date === selectedDate);
-
-  // 品番ごとのステータスで絞り込む
-  const dayItems = allDayItems.filter(it => {
-    if (sheetFilter === 'all') return true;
-    const s = judgeStock(getStockForPartOnDate(it.partId, selectedDate));
-    return s === sheetFilter;
-  }).sort((a,b) => {
-    // NGを先頭に
-    const sa = judgeStock(getStockForPartOnDate(a.partId, selectedDate));
-    const sb = judgeStock(getStockForPartOnDate(b.partId, selectedDate));
-    const rank = { ng:0, warn:1, ok:2 };
-    return rank[sa] - rank[sb];
-  });
-
-  const cont = document.getElementById('sheetCards');
-
-  if (allDayItems.length === 0) {
-    cont.innerHTML = `<div class="empty-sheet">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      <p>この日の出荷予定はありません</p>
-      <button class="empty-add-btn" onclick="openForm('${selectedDate}')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        この日に追加する
+      <div class="proc-section">
+        <div class="proc-label">工程別内訳（①〜⑥すべて仕掛品）</div>
+        <div class="proc-row">${pb}</div>
+      </div>
+      <div class="avail-bar ${warn?'warn':'ok'}">
+        <span class="avail-label ${warn?'warn':'ok'}">引当可能数（完成品のみ）</span>
+        <span class="avail-qty ${warn?'warn':'ok'}">${warn?'⚠ ':''}${avail.toLocaleString()} 個</span>
+      </div>
+      <button class="comp-btn" ${p.process[5]===0?'disabled':''} onclick="openCompleteModal('${p.id}')">
+        ⑥完了 → 完成品へ移動　${p.process[5]>0?'（工程⑥：'+p.process[5]+'個）':'（工程⑥在庫なし）'}
       </button>
     </div>`;
-    return;
-  }
+  });
+  document.getElementById('prod-grid').innerHTML=html;
+}
 
-  if (dayItems.length === 0) {
-    cont.innerHTML = `<div class="empty-sheet">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      <p>不足案件はありません</p></div>`;
-    return;
-  }
+function render(){renderCal();}
 
-  const statusMap = { ok:['出荷OK','🟢'], warn:['要注意','🟡'], ng:['在庫不足','🔴'] };
-
-  cont.innerHTML = dayItems.map((it, idx) => {
-    // 品番ごとの在庫を取得
-    const partStock  = getStockForPartOnDate(it.partId, selectedDate);
-    const partStatus = judgeStock(partStock);
-    const [label, icon] = statusMap[partStatus];
-    const initSt = getInitialStock(it.partId);
-
-    return `<div class="item-card card ${partStatus}" style="animation-delay:${idx*50}ms">
-      <div class="card-top">
-        <span class="card-part">${escHtml(it.partId)}</span>
-        <div class="card-actions-row">
-          <button class="btn-card-edit" onclick="openEdit('${it.id}')">✏ 編集</button>
-          <button class="btn-card-del"  onclick="confirmDelete('${it.id}', this)">削除</button>
+/* ========== MODALS ========== */
+function showDetail(idx){
+  const s=SHIPS[idx],c=catMap[s.cat],p=prodMap[c.prodId];
+  const d=new Date(s.d[0],s.d[1]-1,s.d[2]);
+  const dows=['日','月','火','水','木','金','土'];
+  const wip=getWip(p);
+  const wc=p.process.map((q,i)=>`<span class="wip-chip">${SL[i]}：${q}</span>`).join('');
+  const stOk=p.stock>=s.qty, stCond=!stOk&&(p.stock+wip>=s.qty);
+  const st=stOk
+    ?`<div class="stock-status ok">✓ 完成品在庫あり（${p.stock.toLocaleString()} 個 ≥ ${s.qty.toLocaleString()} 個）</div>`
+    :stCond
+    ?`<div class="stock-status warn" style="background:#fef9c3;color:#a16207">⚠ 完成品不足（完成品＋仕掛品で対応可）</div>`
+    :`<div class="stock-status warn">⚠ 完成品不足 ${(s.qty-p.stock).toLocaleString()} 個（仕掛品含めても不足）</div>`;
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg" id="mbg">
+      <div class="modal">
+        <div class="modal-head">
+          <div><div class="modal-title">${s.item}</div></div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
-      </div>
-      <div class="card-nums">
-        <div class="num-box ship">
-          <div class="num-box-label">出荷数</div>
-          <div class="num-box-val">${(it.ship||0).toLocaleString()}</div>
+        <div class="mrow"><span class="mkey">出荷日</span><span class="mval">${s.d[0]}年${s.d[1]}月${s.d[2]}日（${dows[d.getDay()]}）</span></div>
+        <div class="mrow"><span class="mkey">数量</span><span class="mval">${s.qty.toLocaleString()} 個</span></div>
+        <div class="mrow"><span class="mkey">出荷先</span><span class="mval">${s.dest}</span></div>
+        <div class="mrow"><span class="mkey">ステータス</span><span class="mval" style="color:${s.shipped?'#1a6b45':'#888'}">${s.shipped?'✓ 出荷済':'未出荷'}</span></div>
+        <div class="mrow"><span class="mkey">完成品在庫</span><span class="mval" style="color:#1a6b45">${p.stock.toLocaleString()} 個</span></div>
+        <div class="mrow"><span class="mkey">仕掛品（WIP）</span><div><span class="mval" style="color:#d97706">${wip.toLocaleString()} 個</span><div class="wip-chips">${wc}</div></div></div>
+        ${s.note?`<div class="mrow"><span class="mkey">備考</span><span class="mval">${s.note}</span></div>`:''}
+        ${st}
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-cancel" onclick="closeModal();openEdit(${idx})">編集</button>
+          <button class="btn btn-del" onclick="deleteShip(${idx})">削除</button>
         </div>
-        <div class="num-box done">
-          <div class="num-box-label">完成品</div>
-          <div class="num-box-val">${(it.done||0).toLocaleString()}</div>
-        </div>
-        <div class="num-box wip">
-          <div class="num-box-label">仕掛品</div>
-          <div class="num-box-val">${(it.wip||0).toLocaleString()}</div>
-        </div>
-      </div>
-      <div class="card-result">
-        <span class="result-status">${icon} ${label}</span>
-        <!-- 品番ごとの残在庫を表示 -->
-        <span class="result-num" title="初期在庫: ${initSt}">残 ${partStock.toLocaleString()}</span>
       </div>
     </div>`;
-  }).join('');
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});
 }
 
-/* ═══════════════════════════════════════
-   FORM
-═══════════════════════════════════════ */
-
-/* ═══════════════════════════════════════
-   在庫プレビュー（保存前リアルタイム計算）
-   在庫は保存しない。表示専用。
-═══════════════════════════════════════ */
-
-/**
- * 指定品番の現在在庫（合計）を返す
- */
-function calcStock(partId) {
-  return calcStockDetail(partId).total;
-}
-
-/**
- * フォーム入力値を加味した「保存後の在庫内訳」をプレビュー計算
- * ※ editId のアイテムは除外して二重計上を防ぐ
- * @returns {{ done: number, wip: number, total: number }}
- */
-function calcPreviewDetail(partId) {
-  const doneEl = document.getElementById('fDone');
-  const wipEl  = document.getElementById('fWip');
-
-  // userEdited=false の場合は今回入力分は 0（自動表示値は保存しない）
-  const doneInput = doneEl.dataset.userEdited === 'true' ? (Number(doneEl.value) || 0) : 0;
-  const wipInput  = wipEl.dataset.userEdited  === 'true' ? (Number(wipEl.value)  || 0) : 0;
-  const ship      = Number(document.getElementById('fShip').value) || 0;
-
-  // 編集中アイテムを除いた現在の在庫内訳
-  const base = calcStockDetail(partId, null, editId);
-
-  let doneStock = base.done + doneInput;
-  let wipStock  = base.wip  + wipInput;
-
-  // 出荷後の残を計算
-  let s = ship;
-  if (doneStock >= s) {
-    doneStock -= s;
-    s = 0;
-  } else {
-    s -= doneStock;
-    doneStock = 0;
-  }
-  if (s > 0) wipStock = Math.max(0, wipStock - s);
-
-  return { done: doneStock, wip: wipStock, total: doneStock + wipStock };
-}
-
-/**
- * プレビューカードをリアルタイム更新
- * 入力欄は一切変更しない。結果カードのみ更新。
- * ★ 在庫計算結果（calcStockDetail）を使って表示する。入力値をそのまま表示しない。
- */
-function updatePreview() {
-  const partId   = document.getElementById('fPartId').value.trim();
-  const card     = document.getElementById('previewCard');
-  const resultEl = document.getElementById('previewResult');
-  const statusEl = document.getElementById('previewStatus');
-  const stockEl  = document.getElementById('previewStock');
-
-  if (!partId) {
-    card.style.display = 'none';
-    return;
-  }
-  card.style.display = 'block';
-
-  // ★ 在庫計算結果を基準にする（editId を除外して二重計上防止）
-  const base = calcStockDetail(partId, null, editId);
-
-  const ship = Number(document.getElementById('fShip').value || 0);
-  const done = Number(document.getElementById('fDone').value || 0);
-  const wip  = Number(document.getElementById('fWip').value  || 0);
-
-  let doneStock = base.done + done;
-  let wipStock  = base.wip  + wip;
-
-  // 出荷処理：完成品から優先消費 → 不足分を仕掛品から消費
-  let s = ship;
-  if (doneStock >= s) {
-    doneStock -= s;
-    s = 0;
-  } else {
-    s -= doneStock;
-    doneStock = 0;
-  }
-  if (s > 0) {
-    wipStock = Math.max(0, wipStock - s);
-  }
-
-  // ★ 在庫計算結果を表示（❌ pDone.textContent = fDone.value は絶対に使わない）
-  document.getElementById('remainDone').textContent = doneStock.toLocaleString();
-  document.getElementById('remainWip').textContent  = wipStock.toLocaleString();
-
-  const total = doneStock + wipStock;
-  stockEl.textContent = total.toLocaleString();
-
-  // ステータス判定
-  const status   = judgeStock(total);
-  const labelMap = { ok: '✅ 出荷OK', warn: '⚠️ 要注意', ng: '🔴 不足' };
-
-  ['ok','warn','ng'].forEach(c => {
-    card.classList.remove(c);
-    resultEl.classList.remove(c);
+/* ========== STATUS LIST MODAL ========== */
+function showStatusList(y,m,d,st){
+  const meta=STATUS_META[st];
+  const items=SHIPS.map((s,i)=>({s,i})).filter(({s})=>{
+    if(s.d[0]!==y||s.d[1]!==m||s.d[2]!==d)return false;
+    const sst=s.shipped?'ok':getShipStatus(s);
+    return sst===st;
   });
-  card.classList.add(status);
-  resultEl.classList.add(status);
-  statusEl.className    = status;
-  statusEl.textContent  = labelMap[status];
-  stockEl.className     = status;
+  const dows=['日','月','火','水','木','金','土'];
+  const dateLabel=`${y}年${m}月${d}日（${dows[new Date(y,m-1,d).getDay()]}）`;
+  const rows=items.length?items.map(({s,i})=>{
+    const c=catMap[s.cat],p=c?prodMap[c.prodId]:null;
+    return`<div class="slist-item" onclick="closeModal();showDetail(${i})">
+      <span class="slist-icon">${meta.icon}</span>
+      <span class="slist-name">${p?p.name:'?'}　${s.item}</span>
+      <span class="slist-sub">${s.qty.toLocaleString()}個</span>
+    </div>`;
+  }).join(''):`<div class="slist-empty">該当データなし</div>`;
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg slist-bg" id="mbg">
+      <div class="slist-wrap">
+        <div class="slist-hdr">
+          <div>
+            <div style="font-size:11px;color:#aaa;margin-bottom:3px">${dateLabel}</div>
+            <div class="slist-title">${meta.icon} ${meta.label}（${items.length}件）</div>
+          </div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        ${rows}
+      </div>
+    </div>`;
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});
 }
 
-/* ═══════════════════════════════════════
-   自動入力（残内訳）
-   calcStockDetail を使って完成品・仕掛品の残数を計算
-   比率計算は一切使用しない
-═══════════════════════════════════════ */
-
-/** 指定品番の直近案件を返す（ヒント表示用） */
-function getLastItem(partId) {
-  return items
-    .filter(i => i.partId === partId)
-    .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
+function showDayList(y,m,d){
+  const items=SHIPS.map((s,i)=>({s,i})).filter(({s})=>s.d[0]===y&&s.d[1]===m&&s.d[2]===d);
+  const rows=items.map(({s,i})=>{const c=catMap[s.cat];return`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;cursor:pointer" onclick="closeModal();showDetail(${i})"><span style="background:${c.bg};color:${c.tc};border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700">${c.label.split(' ')[1]}</span><span style="font-size:13px;font-weight:600">${s.item}</span><span style="margin-left:auto;font-size:12px;color:#666;font-weight:600">${s.qty}個</span></div>`}).join('');
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg" id="mbg">
+      <div class="modal">
+        <div class="modal-head"><div class="modal-title">${y}年${m}月${d}日 の出荷一覧</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+        ${rows}
+      </div>
+    </div>`;
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});
 }
 
-/**
- * 現在の在庫内訳から、今回の出荷後に残る完成品・仕掛品数を計算
- * （calcStockDetail ベース。比率不使用）
- *
- * 例）現在の在庫: 完成品500 / 仕掛品5  出荷:100
- *   → 完成品から100消費 → 残: 完成品400 / 仕掛品5  ✅完全一致
- */
-function calcRemainingBreakdown(partId) {
-  const ship = Number(document.getElementById('fShip').value) || 0;
-  if (!ship) return null;
-
-  // 編集中アイテムを除いた現在の実在庫内訳
-  const detail = calcStockDetail(partId, null, editId);
-
-  let doneStock = detail.done;
-  let wipStock  = detail.wip;
-
-  // 完成品から優先消費
-  let s = ship;
-  if (doneStock >= s) {
-    doneStock -= s;
-    s = 0;
-  } else {
-    s -= doneStock;
-    doneStock = 0;
-  }
-  // 不足分を仕掛品から消費
-  if (s > 0) wipStock = Math.max(0, wipStock - s);
-
-  return { done: doneStock, wip: wipStock };
+/* ===== 工程完了 → 完成品移動 ===== */
+function openCompleteModal(prodId){
+  const p=prodMap[prodId];
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg" id="mbg">
+      <div class="modal">
+        <div class="modal-head">
+          <div class="modal-title">⑥ 工程完了 → 完成品へ移動</div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div style="background:#fff7ed;border:1px solid #fbbf24;border-radius:8px;padding:12px;margin-bottom:14px">
+          <div style="font-size:14px;font-weight:700;color:#d97706;margin-bottom:6px">📦 ${p.name}</div>
+          <div style="display:flex;gap:20px;font-size:12px">
+            <span>工程⑥（仕掛品）：<strong style="color:#d97706">${p.process[5]}個</strong></span>
+            <span>現在の完成品：<strong style="color:#1a6b45">${p.stock.toLocaleString()}個</strong></span>
+          </div>
+        </div>
+        <label style="margin-top:0">完了数量（最大 ${p.process[5]} 個）</label>
+        <input type="number" id="comp-qty" min="1" max="${p.process[5]}" value="${p.process[5]}" style="margin-top:6px">
+        <div style="margin-top:10px;background:#f9fafb;border-radius:7px;padding:9px 11px;font-size:11px;color:#888;line-height:1.8;border:1px solid #e8e8e8">
+          ⚠ 工程⑥にある仕掛品のうち、完了した数量のみ完成品へ移動します。<br>
+          工程①〜⑤の仕掛品は完成品になりません。完成品のみ出荷できます。
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
+          <button class="btn" style="flex:1;background:#d97706;color:#fff;font-weight:700;border:none" onclick="doComplete('${prodId}')">✓ 完成品へ移動する</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});
 }
 
-/**
- * 残内訳を入力欄に自動反映
- * ルール：
- *   - ユーザーが手動入力済み（dataset.userEdited === 'true'）なら上書きしない
- *   - 反映した値は「表示補助」のみ。保存時は userEdited フラグで判断。
- */
-function autoFillRemaining(partId) {
-  if (!partId) return;
+function doComplete(prodId){
+  const p=prodMap[prodId];
+  const qty=parseInt(document.getElementById('comp-qty').value);
+  if(!qty||qty<1){alert('数量を入力してください');return;}
+  if(qty>p.process[5]){alert(`工程⑥の仕掛品（${p.process[5]}個）を超えています`);return;}
+  p.process[5]-=qty;  // 工程⑥から減算
+  p.stock+=qty;       // 完成品に加算
+  closeModal();render();
+  setTimeout(()=>{
+    document.getElementById('modal-wrap').innerHTML=`
+      <div class="modal-bg" id="mbg">
+        <div class="modal" style="text-align:center;padding:28px 24px">
+          <div style="font-size:36px;margin-bottom:8px">✅</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:6px">${qty.toLocaleString()}個 を完成品に移動しました</div>
+          <div style="font-size:13px;color:#666;margin-bottom:14px">${p.name}</div>
+          <div style="display:flex;justify-content:center;gap:24px;font-size:13px;margin-bottom:18px">
+            <span style="color:#1a6b45;font-weight:700">完成品：${p.stock.toLocaleString()}個</span>
+            <span style="color:#d97706;font-weight:700">仕掛品：${getWip(p)}個</span>
+          </div>
+          <button class="btn btn-primary" onclick="closeModal()" style="width:120px;display:inline-block">閉じる</button>
+        </div>
+      </div>`;
+  },10);
+}
 
-  const doneEl = document.getElementById('fDone');
-  const wipEl  = document.getElementById('fWip');
-  const note   = document.getElementById('autoFillNote');
-
-  // ユーザーが手動入力していたら上書き禁止
-  if (doneEl.dataset.userEdited === 'true' || wipEl.dataset.userEdited === 'true') return;
-
-  const data = calcRemainingBreakdown(partId);
-  if (!data) {
-    // 前回データなし → 入力欄をクリア・自動表示オフ
-    doneEl.value = '';
-    wipEl.value  = '';
-    doneEl.classList.remove('auto-filled');
-    wipEl.classList.remove('auto-filled');
-    if (note) note.style.display = 'none';
+/* ===== 出荷済処理（完成品のみ） ===== */
+function markShipped(idx){
+  const s=SHIPS[idx],p=prodMap[catMap[s.cat].prodId];
+  // 仕掛品からの出荷は絶対禁止 — 完成品在庫のみ使用可能
+  if(p.stock<s.qty){
+    alert(`⚠ 出荷できません\n\n完成品在庫：${p.stock.toLocaleString()}個\n出荷要求数：${s.qty.toLocaleString()}個\n\n※仕掛品（工程中の品）からの出荷は禁止されています。\n工程⑥完了操作で完成品へ移動してから出荷してください。`);
     return;
   }
-
-  doneEl.value = data.done;
-  wipEl.value  = data.wip;
-
-  // 自動入力であることを視覚的に示す
-  doneEl.classList.add('auto-filled');
-  wipEl.classList.add('auto-filled');
-  if (note) note.style.display = 'flex';
-  // ※ userEdited は立てない → 保存時に 0 として扱われる
+  if(!confirm(`出荷済にしますか？\n\n完成品在庫 ${p.stock.toLocaleString()}個 → ${(p.stock-s.qty).toLocaleString()}個`))return;
+  p.stock-=s.qty;  // 完成品在庫から減算（仕掛品は変動しない）
+  s.shipped=true;
+  closeModal();render();
 }
 
-/* ═══════════════════════════════════════
-   FORM HELPERS
-═══════════════════════════════════════ */
+function deleteShip(idx){
+  if(!confirm('この出荷予定を削除しますか？'))return;
+  SHIPS.splice(idx,1);closeModal();render();
+}
 
-/** datalistを最新の品番・品名で更新 */
-function updateDatalist() {
-  const partIdList   = document.getElementById('partIdList');
-  const partNameList = document.getElementById('partNameList');
-  if (!partIdList || !partNameList) return;
+/* ========== DRAWER ========== */
+function rebuildCatSelect(){
+  const sel=document.getElementById('ep-cat');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- 選択 --</option>';
+  CATS.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.label;sel.appendChild(o)});
+  sel.value=cur;
+}
+rebuildCatSelect();
 
-  // 全既知品番（items + partStocks）
-  const allPartIds = [...new Set([
-    ...items.map(i => i.partId),
-    ...Object.keys(partStocks),
-  ])];
+function openAdd(){
+  document.getElementById('ep-title').textContent='出荷を追加';
+  document.getElementById('ep-idx').value=-1;
+  document.getElementById('ep-date').value=toDateStr(cur);
+  ['ep-cat','ep-item','ep-dest','ep-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ep-qty').value='';
+  document.getElementById('ep-foot').innerHTML=`<button class="btn btn-cancel" onclick="closePanel()">キャンセル</button><button class="btn btn-primary" onclick="saveShip()">保存</button>`;
+  updateStockInfo();openPanel();
+}
 
-  partIdList.innerHTML = allPartIds.map(pid => {
-    const n = partNames[pid] ? ` — ${partNames[pid]}` : '';
-    return `<option value="${escHtml(pid)}">${escHtml(pid)}${escHtml(n)}</option>`;
+function openEdit(idx){
+  const s=SHIPS[idx];
+  document.getElementById('ep-title').textContent='出荷を編集';
+  document.getElementById('ep-idx').value=idx;
+  document.getElementById('ep-date').value=`${s.d[0]}-${String(s.d[1]).padStart(2,'0')}-${String(s.d[2]).padStart(2,'0')}`;
+  document.getElementById('ep-cat').value=s.cat;
+  document.getElementById('ep-item').value=s.item;
+  document.getElementById('ep-qty').value=s.qty;
+  document.getElementById('ep-dest').value=s.dest;
+  document.getElementById('ep-note').value=s.note||'';
+  document.getElementById('ep-foot').innerHTML=`<button class="btn btn-cancel" onclick="closePanel()">キャンセル</button><button class="btn btn-primary" onclick="saveShip()">更新</button>`;
+  updateStockInfo();openPanel();
+}
+
+function updateStockInfo(){
+  const catId=document.getElementById('ep-cat').value;
+  const qty=parseInt(document.getElementById('ep-qty').value)||0;
+  const el=document.getElementById('ep-stock-info');
+  if(!el||!catId){if(el)el.innerHTML='';return;}
+  const c=catMap[catId],p=prodMap[c.prodId];
+  const avail=getAvailable(c.prodId),wip=getWip(p);
+  const ok=qty>0&&avail>=qty;
+  const warn=qty>0&&avail<qty;
+  el.innerHTML=`
+    <div style="background:#f9fafb;border-radius:8px;padding:10px 12px;border:1px solid #e5e5e5">
+      <div style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.5px;margin-bottom:7px">在庫確認（完成品のみ出荷可能）</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #f0f0f0">
+        <span style="color:#666">完成品在庫</span><span style="font-weight:700;color:#1a6b45">${p.stock.toLocaleString()} 個</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #f0f0f0">
+        <span style="color:#666">仕掛品 (WIP)</span><span style="font-weight:700;color:#d97706">${wip.toLocaleString()} 個</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0">
+        <span style="color:#666">引当可能数</span><span style="font-weight:700;color:${avail>=0?'#1a6b45':'#dc2626'}">${avail.toLocaleString()} 個</span>
+      </div>
+      ${qty>0?`<div style="margin-top:8px;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:700;background:${ok?'#e6f4ed':'#fef2f2'};color:${ok?'#1a6b45':'#dc2626'}">
+        ${ok?'✓ 出荷可能':'⚠ 完成品在庫が不足（仕掛品からの出荷は不可）'}
+      </div>`:''}
+    </div>`;
+}
+
+function saveShip(){
+  const dateVal=document.getElementById('ep-date').value;
+  const cat=document.getElementById('ep-cat').value;
+  const item=document.getElementById('ep-item').value.trim();
+  const qty=parseInt(document.getElementById('ep-qty').value);
+  const dest=document.getElementById('ep-dest').value.trim();
+  const note=document.getElementById('ep-note').value.trim();
+  if(!dateVal||!cat||!item||!qty||!dest){alert('必須項目をすべて入力してください');return;}
+  const avail=getAvailable(catMap[cat].prodId);
+  if(avail<qty&&!confirm(`⚠ 完成品在庫が不足しています。\n引当可能：${avail}個 / 要求：${qty}個\n\n仕掛品からの出荷は実行できません。\n予定として登録しますか？`))return;
+  const parts=dateVal.split('-').map(Number);
+  const idx=+document.getElementById('ep-idx').value;
+  if(idx>=0)SHIPS[idx]={d:parts,cat,item,qty,dest,note,shipped:false};
+  else SHIPS.push({d:parts,cat,item,qty,dest,note,shipped:false});
+  SHIPS.sort((a,b)=>a.d[0]-b.d[0]||a.d[1]-b.d[1]||a.d[2]-b.d[2]);
+  closePanel();render();
+}
+
+/* ========== 取引先管理 ========== */
+function openCatManager(){
+  const rows=CATS.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0">
+      <span style="background:${c.bg};color:${c.tc};border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700;flex-shrink:0">${c.label}</span>
+      <span style="font-size:11px;color:#aaa;flex:1">${PRODUCTS.find(p=>p.id===c.prodId)?.name||'?'}</span>
+      <button onclick="openCatForm(${i})" style="padding:4px 12px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;font-family:inherit">編集</button>
+      <button onclick="deleteCat(${i})" style="padding:4px 10px;border-radius:6px;border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:12px;font-family:inherit">削除</button>
+    </div>`).join('');
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg" id="mbg">
+      <div class="modal" style="width:440px">
+        <div class="modal-head">
+          <div class="modal-title">🏢 取引先管理</div>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div style="max-height:55vh;overflow-y:auto">${rows||'<div style="color:#aaa;text-align:center;padding:20px">取引先がありません</div>'}</div>
+        <div style="margin-top:14px">
+          <button onclick="openCatForm(-1)" style="width:100%;padding:9px;border-radius:8px;border:2px dashed #1a6b45;background:#f0faf4;color:#1a6b45;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">＋ 取引先を追加</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});
+}
+
+function openCatForm(idx){
+  const isNew=idx<0;
+  const c=isNew?{label:'',bg:COLOR_PRESETS[0].bg,tc:COLOR_PRESETS[0].tc,prodId:PRODUCTS[0]?.id||''}:CATS[idx];
+  const colorBtns=COLOR_PRESETS.map((cp,ci)=>`
+    <button type="button" id="cpbtn-${ci}" onclick="selectColor(${ci})"
+      style="width:32px;height:32px;border-radius:6px;background:${cp.bg};color:${cp.tc};font-size:11px;font-weight:700;cursor:pointer;border:2px solid ${cp.bg===c.bg?cp.tc:'transparent'};font-family:inherit">${cp.name}</button>`).join('');
+  const prodOpts=PRODUCTS.map(p=>`<option value="${p.id}"${p.id===c.prodId?' selected':''}>${p.name}</option>`).join('');
+  document.getElementById('modal-wrap').innerHTML=`
+    <div class="modal-bg" id="mbg2">
+      <div class="modal" style="width:380px">
+        <div class="modal-head">
+          <div class="modal-title">${isNew?'取引先を追加':'取引先を編集'}</div>
+          <button class="modal-close" onclick="openCatManager()">✕</button>
+        </div>
+        <input type="hidden" id="cf-idx" value="${idx}">
+        <input type="hidden" id="cf-bg" value="${c.bg}">
+        <input type="hidden" id="cf-tc" value="${c.tc}">
+        <label style="margin-top:0">取引先名</label>
+        <input type="text" id="cf-label" value="${c.label}" placeholder="例：得意先 ABC">
+        <label>製品</label>
+        <select id="cf-prod">${prodOpts}</select>
+        <label>カラー</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px" id="color-btns">${colorBtns}</div>
+        <div id="cf-preview" style="margin-top:10px;padding:6px 12px;border-radius:6px;display:inline-block;font-size:13px;font-weight:700;background:${c.bg};color:${c.tc}">${c.label||'プレビュー'}</div>
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <button class="btn btn-cancel" onclick="openCatManager()">戻る</button>
+          <button class="btn btn-primary" onclick="saveCat()">保存</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('cf-label').addEventListener('input',updateCatPreview);
+}
+
+function selectColor(ci){
+  const cp=COLOR_PRESETS[ci];
+  document.getElementById('cf-bg').value=cp.bg;
+  document.getElementById('cf-tc').value=cp.tc;
+  document.querySelectorAll('[id^="cpbtn-"]').forEach((b,i)=>{
+    b.style.border=`2px solid ${i===ci?cp.tc:'transparent'}`;
+  });
+  updateCatPreview();
+}
+
+function updateCatPreview(){
+  const label=document.getElementById('cf-label').value||'プレビュー';
+  const bg=document.getElementById('cf-bg').value;
+  const tc=document.getElementById('cf-tc').value;
+  const el=document.getElementById('cf-preview');
+  if(el){el.textContent=label;el.style.background=bg;el.style.color=tc;}
+}
+
+function saveCat(){
+  const label=document.getElementById('cf-label').value.trim();
+  if(!label){alert('取引先名を入力してください');return;}
+  const idx=+document.getElementById('cf-idx').value;
+  const bg=document.getElementById('cf-bg').value;
+  const tc=document.getElementById('cf-tc').value;
+  const prodId=document.getElementById('cf-prod').value;
+  if(idx<0){
+    const newId='CAT'+Date.now();
+    CATS.push({id:newId,label,bg,tc,prodId});
+  } else {
+    CATS[idx]={...CATS[idx],label,bg,tc,prodId};
+  }
+  rebuildCatMap();rebuildCatSelect();render();openCatManager();
+}
+
+function deleteCat(idx){
+  const c=CATS[idx];
+  const inUse=SHIPS.some(s=>s.cat===c.id);
+  if(inUse&&!confirm(`「${c.label}」は出荷予定で使用されています。\n削除すると関連する出荷データも影響を受けます。\n本当に削除しますか？`))return;
+  if(!inUse&&!confirm(`「${c.label}」を削除しますか？`))return;
+  CATS.splice(idx,1);
+  rebuildCatMap();rebuildCatSelect();render();openCatManager();
+}
+
+/* ========== SEARCH ========== */
+let searchQuery='';
+const DOWS=['日','月','火','水','木','金','土'];
+function onSearch(val){
+  searchQuery=val.trim();
+  document.getElementById('search-clear').style.display=searchQuery?'':'none';
+  if(searchQuery){
+    document.getElementById('cal-area').style.display='none';
+    renderSearchResults();
+  } else {
+    document.getElementById('cal-area').style.display='';
+    document.getElementById('search-results').style.display='none';
+  }
+}
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  onSearch('');
+}
+function renderSearchResults(){
+  const q=searchQuery.toLowerCase();
+  const matched=SHIPS.map((s,i)=>({s,i})).filter(({s})=>{
+    const c=catMap[s.cat],p=c?prodMap[c.prodId]:null;
+    return (p&&p.name.toLowerCase().includes(q))||s.item.toLowerCase().includes(q);
+  });
+  const el=document.getElementById('search-results');
+  el.style.display='';
+  if(!matched.length){
+    el.innerHTML=`<div class="sresult-list"><div class="sresult-empty">「${searchQuery}」に一致するデータなし</div></div>`;
+    return;
+  }
+  const rows=matched.map(({s,i})=>{
+    const c=catMap[s.cat],p=c?prodMap[c.prodId]:null;
+    const st=s.shipped?'ok':getShipStatus(s);
+    const stColor={ok:'#16a34a',cond:'#ca8a04',ng:'#dc2626'}[st];
+    const d=new Date(s.d[0],s.d[1]-1,s.d[2]);
+    const dateStr=`${s.d[0]}/${String(s.d[1]).padStart(2,'0')}/${String(s.d[2]).padStart(2,'0')}（${DOWS[d.getDay()]}）`;
+    return`<div class="sresult-item" onclick="showDetail(${i})">
+      <div class="sresult-st" style="background:${stColor}"></div>
+      <div class="sresult-date">${dateStr}</div>
+      <div class="sresult-name">${p?p.name+' ':''}<span style="font-weight:400;color:#555">${s.item}</span></div>
+      <div class="sresult-qty">${s.qty.toLocaleString()}個</div>
+    </div>`;
   }).join('');
-
-  partNameList.innerHTML = Object.entries(partNames).map(([pid, name]) =>
-    `<option value="${escHtml(name)}">${escHtml(name)} [${escHtml(pid)}]</option>`
-  ).join('');
+  el.innerHTML=`<div class="sresult-list">
+    <div class="sresult-hdr">「${searchQuery}」の検索結果　${matched.length}件</div>
+    ${rows}
+  </div>`;
 }
 
-/**
- * 品番または品名が変更されたときの同期処理
- * mode: 'id' = 品番入力から, 'name' = 品名入力から
- *
- * ★ 完成品・仕掛品の入力欄には自動入力しない（重複在庫防止）
- * ★ 現在の在庫はヒントラベルとして表示するのみ
- */
-function syncPartInfo(val, mode) {
-  const trimmed = val.trim();
-  const partIdInput   = document.getElementById('fPartId');
-  const nameInput     = document.getElementById('fPartName');
-  const hintEl        = document.getElementById('fStockHint');
-  const hintVal       = document.getElementById('fStockHintVal');
-  const doneHint      = document.getElementById('fDoneHint');
-  const wipHint       = document.getElementById('fWipHint');
 
-  let resolvedId   = '';
-  let resolvedName = '';
-
-  if (mode === 'id') {
-    resolvedId = trimmed;
-    resolvedName = partNames[trimmed] || '';
-    // 品名フィールドを補完（フォーカスがない場合のみ）
-    if (nameInput !== document.activeElement) nameInput.value = resolvedName;
-  } else {
-    // 品名から品番を逆引き
-    const found = Object.entries(partNames).find(([, n]) => n === trimmed);
-    if (found) {
-      resolvedId   = found[0];
-      resolvedName = trimmed;
-      if (partIdInput !== document.activeElement) partIdInput.value = resolvedId;
-    }
-  }
-
-  if (!resolvedId) {
-    hintEl.style.display = 'none';
-    doneHint.textContent = '';
-    wipHint.textContent  = '';
-    return;
-  }
-
-  // 現在の在庫内訳をヒント表示（calcStockDetail で正確な値）
-  const detail = calcStockDetail(resolvedId);
-
-  hintEl.style.display = 'block';
-  hintVal.textContent  = `${detail.total.toLocaleString()} （完成品 ${detail.done.toLocaleString()} / 仕掛品 ${detail.wip.toLocaleString()}）`;
-
-  // 完成品・仕掛品ヒント：現在の実在庫を参考値として表示
-  doneHint.textContent = `現在庫: ${detail.done}`;
-  wipHint.textContent  = `現在庫: ${detail.wip}`;
-  updatePreview(); // プレビューをリアルタイム更新
-
-  // 品番が確定したとき、出荷数がすでに入力済みなら自動反映を試みる
-  if (resolvedId) {
-    const shipVal = document.getElementById('fShip').value;
-    if (shipVal) autoFillRemaining(resolvedId);
-  }
-}
-
-function openForm(prefillDate) {
-  editId = null;
-  document.getElementById('formTitle').textContent = '案件を追加';
-  document.getElementById('fPartId').value   = '';
-  document.getElementById('fPartName').value = '';
-  document.getElementById('fDate').value     = prefillDate || todayStr;
-  document.getElementById('fShip').value     = '';
-  document.getElementById('fDone').value     = '';
-  document.getElementById('fWip').value      = '';
-  document.getElementById('fDone').dataset.userEdited = 'false';
-  document.getElementById('fWip').dataset.userEdited  = 'false';
-  document.getElementById('fDone').classList.remove('auto-filled');
-  document.getElementById('fWip').classList.remove('auto-filled');
-  document.getElementById('autoFillNote').style.display = 'none';
-  document.getElementById('fStockHint').style.display = 'none';
-  document.getElementById('fDoneHint').textContent = '';
-  document.getElementById('fWipHint').textContent  = '';
-  document.getElementById('previewCard').style.display = 'none';
-  updateDatalist();
-  document.getElementById('formOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('fPartId').focus(), 300);
-}
-function openEdit(id) {
-  const it = items.find(i => i.id===id);
-  if (!it) return;
-  editId = id;
-  document.getElementById('formTitle').textContent = '案件を編集';
-  document.getElementById('fPartId').value   = it.partId;
-  document.getElementById('fPartName').value = partNames[it.partId] || '';
-  document.getElementById('fDate').value     = it.date;
-  document.getElementById('fShip').value     = it.ship;
-  document.getElementById('fDone').value     = it.done;
-  document.getElementById('fWip').value      = it.wip;
-  // 編集時は保存済みの値を尊重する → userEdited フラグを立てておく
-  document.getElementById('fDone').dataset.userEdited = 'true';
-  document.getElementById('fWip').dataset.userEdited  = 'true';
-  document.getElementById('fStockHint').style.display = 'none';
-  document.getElementById('fDoneHint').textContent = '';
-  document.getElementById('fWipHint').textContent  = '';
-  updateDatalist();
-  document.getElementById('previewCard').style.display = 'block';
-  updatePreview(); // フォーム値がすべてセットされた後に実行
-  document.getElementById('formOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeForm() {
-  document.getElementById('formOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-function saveItem() {
-  const partId   = document.getElementById('fPartId').value.trim();
-  const partName = document.getElementById('fPartName').value.trim();
-  const date     = document.getElementById('fDate').value;
-  const ship     = parseInt(document.getElementById('fShip').value)     || 0;
-
-  // ★ userEdited フラグが立っていない場合は 0 として保存（自動表示値を在庫に加算しない）
-  const doneEl   = document.getElementById('fDone');
-  const wipEl    = document.getElementById('fWip');
-  const done     = doneEl.dataset.userEdited === 'true' ? (parseInt(doneEl.value) || 0) : 0;
-  const wip      = wipEl.dataset.userEdited  === 'true' ? (parseInt(wipEl.value)  || 0) : 0;
-
-  if (!partId || !date) {
-    alert('品番と出荷日は必須です');
-    return;
-  }
-  // 品名を保存（入力があれば更新）
-  if (partName) partNames[partId] = partName;
-
-  // 初期在庫：新規品番の場合のみ 0 で初期化（既存は変更しない → 重複防止）
-  if (partStocks[partId] === undefined) {
-    partStocks[partId] = 0;
-  }
-
-  if (editId) {
-    const idx = items.findIndex(i => i.id===editId);
-    if (idx>=0) items[idx] = { id:editId, partId, date, ship, done, wip };
-  } else {
-    items.push({ id:uid(), partId, date, ship, done, wip });
-  }
-  persist();
-  closeForm();
-  const [y,m] = date.split('-').map(Number);
-  viewYear  = y;
-  viewMonth = m-1;
-  renderCalendar();
-  openDetail(date);
-}
-function confirmDelete(id, btn) {
-  // すでに確認UIが出ていたらキャンセル扱いでリセット
-  const row = btn.closest('.card-actions-row');
-  if (row.dataset.confirming === 'true') {
-    row.dataset.confirming = 'false';
-    row.innerHTML = `
-      <button class="btn-card-edit" onclick="openEdit('${id}')">✏ 編集</button>
-      <button class="btn-card-del"  onclick="confirmDelete('${id}', this)">削除</button>`;
-    return;
-  }
-  // 確認UIを表示
-  row.dataset.confirming = 'true';
-  row.innerHTML = `
-    <span style="font-size:11px;font-weight:700;color:var(--ng);white-space:nowrap;">本当に削除？</span>
-    <button class="btn-card-del" style="background:var(--ng);color:#fff;" onclick="deleteItem('${id}')">はい</button>
-    <button class="btn-card-edit" onclick="confirmDelete('${id}', this)">いいえ</button>`;
-}
-function deleteItem(id) {
-  items = items.filter(i => i.id!==id);
-  persist();
-  renderCalendar();
-  if (selectedDate) renderSheetCards();
-}
-
-/* ═══════════════════════════════════════
-   NAV
-═══════════════════════════════════════ */
-function prevMonth() {
-  if (viewMonth===0) { viewYear--; viewMonth=11; }
-  else viewMonth--;
-  renderCalendar();
-}
-function nextMonth() {
-  if (viewMonth===11) { viewYear++; viewMonth=0; }
-  else viewMonth++;
-  renderCalendar();
-}
-function goToday() {
-  const t = new Date();
-  viewYear  = t.getFullYear();
-  viewMonth = t.getMonth();
-  renderCalendar();
-}
-
-/* ═══════════════════════════════════════
-   UTIL
-═══════════════════════════════════════ */
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
-load();
-const now = new Date();
-viewYear  = now.getFullYear();
-viewMonth = now.getMonth();
-renderCalendar();
-
-// fDone・fWip：手動入力を検知して userEdited フラグを立てる
-document.getElementById('fDone').addEventListener('input', () => {
-  const el = document.getElementById('fDone');
-  el.dataset.userEdited = 'true';
-  el.classList.remove('auto-filled');
-  // 両方ユーザー入力になったらノートを消す
-  if (document.getElementById('fWip').dataset.userEdited === 'true') {
-    document.getElementById('autoFillNote').style.display = 'none';
-  }
-  updatePreview();
-});
-document.getElementById('fWip').addEventListener('input', () => {
-  const el = document.getElementById('fWip');
-  el.dataset.userEdited = 'true';
-  el.classList.remove('auto-filled');
-  if (document.getElementById('fDone').dataset.userEdited === 'true') {
-    document.getElementById('autoFillNote').style.display = 'none';
-  }
-  updatePreview();
-});
-
-// fShip：出荷数入力時に完成品・仕掛品を自動反映 ＋ プレビュー更新
-document.getElementById('fShip').addEventListener('input', () => {
-  const partId = document.getElementById('fPartId').value.trim();
-  autoFillRemaining(partId);
-  updatePreview();
-});
+function openPanel(){document.getElementById('edit-panel').classList.add('open');document.getElementById('panel-bg').style.display='block'}
+function closePanel(){document.getElementById('edit-panel').classList.remove('open');document.getElementById('panel-bg').style.display='none'}
+function closeModal(){document.getElementById('modal-wrap').innerHTML=''}
+function toDateStr(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`}
+function prevMonth(){cur=new Date(cur.getFullYear(),cur.getMonth()-1,1);renderCal()}
+function nextMonth(){cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);renderCal()}
+function goToday(){cur=new Date(today.getFullYear(),today.getMonth(),1);renderCal()}
+document.addEventListener('change',e=>{if(['ep-cat','ep-qty'].includes(e.target.id))updateStockInfo()});
+document.addEventListener('input',e=>{if(e.target.id==='ep-qty')updateStockInfo()});
+render();
 </script>
-
 </body>
 </html>
